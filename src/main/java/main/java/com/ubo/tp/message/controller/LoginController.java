@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.controller;
 
+import main.java.com.ubo.tp.message.Response;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.ihm.template.LoginView;
@@ -17,15 +18,13 @@ public class LoginController {
     }
 
 
-    public int onLogin(  String password,String userTagOrName) {
+    public Response onLogin(String password, String userTagOrName) {
 
         User user = login(userTagOrName, password, session);
         if (user != null) {
-            return 0;
-            lv.showInfo("Connexion réussie ! Bienvenue, " + user.getName() + " !");
+            return new Response(true, "Connexion réussie ! Bienvenue, " + user.getName() + " !");
         } else {
-            return 1;
-            lv.showError("Erreur de connexion", "Échec de la connexion. Veuillez vérifier vos identifiants.");
+            return new Response(false, "Échec de la connexion. Veuillez vérifier vos identifiants.");
         }
     }
     public User login(String userTagOrName, String password, Session session) {

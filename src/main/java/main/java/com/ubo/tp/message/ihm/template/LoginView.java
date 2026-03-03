@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.ihm.template;
 
+import main.java.com.ubo.tp.message.Response;
 import main.java.com.ubo.tp.message.controller.LoginController;
 import main.java.com.ubo.tp.message.controller.NavigationController;
 
@@ -23,7 +24,14 @@ public class LoginView extends JPanel {
         username = new JTextField(20);
         password = new JPasswordField(20);
         loginButton = new JButton("Se connecter");
-        loginButton.addActionListener(envet->loginController.onLogin(this.getPassword(),this.getUsername());
+        loginButton.addActionListener(e->{
+            Response rs = loginController.onLogin(this.getPassword(),this.getUsername());
+            if(rs.isSuccess()){
+                showInfo(rs.getMessage());
+            }else{
+                showError("Erreur de connexion", rs.getMessage());
+            }
+        });
         setupLayout();
     }
 
