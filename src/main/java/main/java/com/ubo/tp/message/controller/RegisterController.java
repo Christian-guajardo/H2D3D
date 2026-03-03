@@ -13,11 +13,7 @@ public class RegisterController {
         this.mDataManager = mDataManager;
     }
 
-    public void attach(RegisterView registerView) {
-        registerView.setRegisterActionListener(event -> onRegister(registerView));
-    }
-
-    private void onRegister(RegisterView rv) {
+    public void onRegister(RegisterView rv) {
         if (!rv.getConfirmPassword().equals(rv.getPassword())) {
             rv.showError("Erreur", "Les mots de passe ne correspondent pas.");
             return;

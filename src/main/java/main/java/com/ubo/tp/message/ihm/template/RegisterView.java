@@ -1,18 +1,25 @@
 package main.java.com.ubo.tp.message.ihm.template;
 
+import main.java.com.ubo.tp.message.controller.LoginController;
+import main.java.com.ubo.tp.message.controller.NavigationController;
+import main.java.com.ubo.tp.message.controller.RegisterController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class RegisterView extends JPanel {
+    private RegisterController registerController;
+
     private JTextField tag;
     private JTextField username;
     private JPasswordField password;
     private JPasswordField confirmPassword;
     private JButton registerButton;
 
-    public RegisterView() {
+    public RegisterView(RegisterController registerController) {
         super(new GridBagLayout());
+        this.registerController = registerController;
         initComponents();
     }
 
@@ -22,7 +29,7 @@ public class RegisterView extends JPanel {
         password = new JPasswordField(20);
         confirmPassword = new JPasswordField(20);
         registerButton = new JButton("S'inscrire");
-
+        registerButton.addActionListener(e -> registerController.onRegister(this));
         setupLayout();
     }
 
