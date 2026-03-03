@@ -1,18 +1,13 @@
 package main.java.com.ubo.tp.message.controller;
 
-import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
 import main.java.com.ubo.tp.message.ihm.template.RegisterView;
 import main.java.com.ubo.tp.message.datamodel.User;
 
-
 public class RegisterController {
-
     private final UserController userController;
-
 
     public RegisterController(UserController userController) {
         this.userController = userController;
-
     }
 
     public void attach(RegisterView registerView) {

@@ -1,13 +1,11 @@
 package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.core.session.Session;
-import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
 import main.java.com.ubo.tp.message.ihm.template.LoginView;
 import main.java.com.ubo.tp.message.datamodel.User;
 
-
 public class LoginController {
-    private final UserController userController;;
+    private final UserController userController;
     private final Session session;
 
     public LoginController(UserController userController, Session session) {
@@ -16,13 +14,13 @@ public class LoginController {
     }
 
     public void attach(LoginView loginView) {
-        loginView.setRegisterActionListener(event -> onLogin(loginView));
+        loginView.setLoginActionListener(event -> onLogin(loginView));
     }
 
     private void onLogin(LoginView lv) {
         String userTagOrName = lv.getUsername();
         String password = lv.getPassword();
-        User user = userController.login(userTagOrName, password,session);
+        User user = userController.login(userTagOrName, password, session);
         if (user != null) {
             lv.showInfo("Connexion réussie ! Bienvenue, " + user.getName() + " !");
         } else {

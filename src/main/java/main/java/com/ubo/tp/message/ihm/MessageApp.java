@@ -37,40 +37,29 @@ public class MessageApp {
 	 * Initialisation de l'application.
 	 */
 	public void init() {
-		// Init du look and feel de l'application
-		this.initLookAndFeel();
-
-		// Initialisation de l'IHM
-		this.initGui();
-
-		// Initialisation du répertoire d'échange
-		this.initDirectory();
+		initLookAndFeel();
+		initGui();
 	}
 
 	/**
 	 * Initialisation du look and feel de l'application.
 	 */
 	protected void initLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Initialisation de l'interface graphique.
 	 */
 	protected void initGui() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+
 		this.mMainView = new MessageAppMainView();
-
-		// Lier le UserController à la vue principale
-		UserController userController = new UserController(mDataManager);
-		this.mMainView.setUserController(userController);
-
-		// Créer et initialiser le controller principal de la vue
-		MessageAppMainController mainController = new MessageAppMainController(mDataManager,mMainView, userController);
-		mainController.init();
+		MessageAppMainController mMainController = new MessageAppMainController(mDataManager, mMainView);
+		mMainController.init();
 
 	}
 

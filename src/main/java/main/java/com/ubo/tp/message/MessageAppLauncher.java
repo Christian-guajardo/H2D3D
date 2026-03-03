@@ -6,32 +6,14 @@ import main.java.com.ubo.tp.message.core.database.DatabaseObserver;
 import main.java.com.ubo.tp.message.core.database.DbConnector;
 import main.java.com.ubo.tp.message.core.database.EntityManager;
 import main.java.com.ubo.tp.message.ihm.MessageApp;
-import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
 import mock.MessageAppMock;
 
-/**
- * Classe de lancement de l'application.
- *
- * @author S.Lucas
- */
 public class MessageAppLauncher {
-
-	/**
-	 * Indique si le mode bouchoné est activé.
-	 */
 	protected static boolean IS_MOCK_ENABLED = true;
 
-	/**
-	 * Launcher.
-	 *
-	 * @param args
-	 */
 	public static void main(String[] args) {
-
 		Database database = new Database();
-
 		EntityManager entityManager = new EntityManager(database);
-
 		DataManager dataManager = new DataManager(database, entityManager);
 		DatabaseObserver dbObserver = new DatabaseObserver();
 
@@ -44,11 +26,8 @@ public class MessageAppLauncher {
 			mock.showGUI();
 		}
 
-
 		MessageApp messageApp = new MessageApp(dataManager);
-
 		messageApp.init();
 		messageApp.show();
-
 	}
 }

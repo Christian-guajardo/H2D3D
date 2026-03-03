@@ -11,14 +11,13 @@ public class ConnectController implements ISessionObserver {
         this.mDataManager = mDataManager;
     }
 
-
     @Override
     public void notifyLogin(User connectedUser) {
-
+        // Logique à implémenter si nécessaire
     }
 
     @Override
     public void notifyLogout() {
-
+        // Logique à implémenter si nécessaire
     }
 }

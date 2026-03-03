@@ -1,25 +1,18 @@
 package main.java.com.ubo.tp.message.controller;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
 
-/**
- * Controller responsable de l'inscription et de l'authentification des utilisateurs.
- */
 public class UserController {
-
     private final DataManager mDataManager;
-
 
     public UserController(DataManager dataManager) {
         this.mDataManager = Objects.requireNonNull(dataManager);
     }
-
 
     public User register(String tag, String username, String password) {
         if (tag == null || tag.trim().isEmpty() || username == null || username.trim().isEmpty()
@@ -28,7 +21,6 @@ public class UserController {
             return null;
         }
 
-        // Vérifier unicité du tag
         Set<User> users = mDataManager.getUsers();
         for (User u : users) {
             if (tag.equals(u.getUserTag())) {
@@ -41,13 +33,12 @@ public class UserController {
         try {
             mDataManager.sendUser(user);
         } catch (RuntimeException ex) {
-           System.err.println("Erreur lors de l'enregistrement de l'utilisateur : " + ex.getMessage());
+            System.err.println("Erreur lors de l'enregistrement de l'utilisateur : " + ex.getMessage());
             return null;
         }
 
         return user;
     }
-
 
     public User login(String userTagOrName, String password, Session session) {
         if (userTagOrName == null || userTagOrName.trim().isEmpty() || password == null) {
@@ -64,7 +55,7 @@ public class UserController {
                     mDataManager.sendUser(u);
                     session.connect(u);
                 } catch (RuntimeException ex) {
-
+                    System.err.println("Erreur lors de la mise à jour de l'utilisateur : " + ex.getMessage());
                 }
                 return u;
             }
@@ -72,5 +63,4 @@ public class UserController {
 
         return null;
     }
-
 }
