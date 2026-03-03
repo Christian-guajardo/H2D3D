@@ -21,7 +21,7 @@ public class MessageListView extends JPanel {
 
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setBackground(Color.WHITE);
+        listPanel.setBackground(Color.GRAY);
 
         JScrollPane scroll = new JScrollPane(listPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
