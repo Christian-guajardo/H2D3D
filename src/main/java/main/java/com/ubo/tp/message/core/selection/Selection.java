@@ -14,16 +14,9 @@ import java.util.UUID;
  * @author S.Lucas
  */
 public class Selection implements ISelection {
-
-	/**
-	 * Utilisateur connecté
-	 */
 	protected User mSelectedUser;
 	protected Channel mSelectedChannel;
 
-	/**
-	 * Liste des observateurs de la session.
-	 */
 	protected List<ISelectionObserver> mObservers = new ArrayList<>();
 
 	@Override

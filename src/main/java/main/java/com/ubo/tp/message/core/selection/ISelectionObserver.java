@@ -2,6 +2,8 @@ package main.java.com.ubo.tp.message.core.selection;
 
 
 
+import main.java.com.ubo.tp.message.datamodel.AbstractMessageAppObject;
+
 import java.util.UUID;
 
 /**
@@ -10,8 +12,5 @@ import java.util.UUID;
  * @author S.Lucas
  */
 public interface ISelectionObserver {
-
-	void notify(UUID selectedUUID);
-
-
+	void notify(AbstractMessageAppObject selectedObject);
 }
