@@ -16,11 +16,8 @@ public class LoginController {
         this.session = session;
     }
 
-    public void attach(LoginView loginView) {
-        loginView.setLoginActionListener(event -> onLogin(loginView));
-    }
 
-    private void onLogin(LoginView lv) {
+    public void onLogin(LoginView lv) {
         String userTagOrName = lv.getUsername();
         String password = lv.getPassword();
         User user = login(userTagOrName, password, session);
