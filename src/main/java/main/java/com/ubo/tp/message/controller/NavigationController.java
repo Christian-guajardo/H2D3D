@@ -2,10 +2,13 @@ package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.session.ISessionObserver;
-import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
 import main.java.com.ubo.tp.message.ihm.template.*;
+import main.java.com.ubo.tp.message.ihm.template.component.ChannelListView;
+import main.java.com.ubo.tp.message.ihm.template.component.MessageInputView;
+import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
+import main.java.com.ubo.tp.message.ihm.template.component.UserListView;
 
 public class NavigationController implements ISessionObserver {
     private final MessageAppMainView mainView;

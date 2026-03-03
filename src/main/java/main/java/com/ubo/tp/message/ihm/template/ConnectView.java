@@ -1,5 +1,10 @@
 package main.java.com.ubo.tp.message.ihm.template;
 
+import main.java.com.ubo.tp.message.ihm.template.component.ChannelListView;
+import main.java.com.ubo.tp.message.ihm.template.component.MessageInputView;
+import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
+import main.java.com.ubo.tp.message.ihm.template.component.UserListView;
+
 import javax.swing.*;
 import java.awt.*;
 
