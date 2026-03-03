@@ -14,25 +14,7 @@ public class RegisterController {
         this.mDataManager = mDataManager;
     }
 
-    public void onRegister(RegisterView rv) {
-        if (!rv.getConfirmPassword().equals(rv.getPassword())) {
-            rv.showError("Erreur", "Les mots de passe ne correspondent pas.");
-            return;
-        }
-        User user = register(rv.getTag(), rv.getUsername(), rv.getPassword());
-        if (user == null) {
-            rv.showError("Erreur", "Échec de l'inscription. Le tag est peut-être déjà utilisé ou les champs sont invalides.");
-        } else {
-            rv.showInfo("Inscription réussie ! Vous pouvez maintenant vous connecter.");
-        }
-    }
-
     public User register(String tag, String username, String password) {
-        if (tag == null || tag.trim().isEmpty() || username == null || username.trim().isEmpty()
-                || password == null || password.trim().isEmpty()) {
-            System.err.println("Tous les champs (tag, username, password) doivent être remplis et non vides.");
-            return null;
-        }
 
         Set<User> users = mDataManager.getUsers();
         for (User u : users) {
@@ -63,7 +45,7 @@ public class RegisterController {
 
         User user = register(tag, username, password);
         if (user == null) {
-            return new Response(false, "Échec de l'inscription. Le tag est déjà utilisé !");
+            return new Response(false, "Échec de l'inscription !");
         }
         return new Response(true, "Inscription réussie ! Vous pouvez maintenant vous connecter !");
     }
