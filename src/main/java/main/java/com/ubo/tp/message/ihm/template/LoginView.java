@@ -1,5 +1,8 @@
 package main.java.com.ubo.tp.message.ihm.template;
 
+import main.java.com.ubo.tp.message.controller.LoginController;
+import main.java.com.ubo.tp.message.controller.NavigationController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -8,9 +11,11 @@ public class LoginView extends JPanel {
     private JTextField username;
     private JPasswordField password;
     private JButton loginButton;
+    private LoginController loginController;
 
-    public LoginView() {
+    public LoginView(LoginController loginController) {
         super(new GridBagLayout());
+        this.loginController=loginController;
         initComponents();
     }
 
@@ -18,7 +23,7 @@ public class LoginView extends JPanel {
         username = new JTextField(20);
         password = new JPasswordField(20);
         loginButton = new JButton("Se connecter");
-
+        loginButton.addActionListener(envet->loginController.onLogin(this));
         setupLayout();
     }
 

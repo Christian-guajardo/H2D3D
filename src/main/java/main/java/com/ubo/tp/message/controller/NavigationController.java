@@ -35,14 +35,12 @@ public class NavigationController implements ISessionObserver {
     }
 
     private void showRegisterView() {
-        RegisterView registerView = new RegisterView();
-        registerController.attach(registerView);
+        RegisterView registerView = new RegisterView(registerController);
         mainView.showContent(registerView);
     }
 
     private void showLoginView() {
-        LoginView loginView = new LoginView();
-        loginController.attach(loginView);
+        LoginView loginView = new LoginView(loginController);
         mainView.showContent(loginView);
     }
 
