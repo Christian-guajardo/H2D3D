@@ -1,8 +1,7 @@
 package main.java.com.ubo.tp.message.controller;
 
-import main.java.com.ubo.tp.message.Response;
+import main.java.com.ubo.tp.message.datamodel.Response;
 import main.java.com.ubo.tp.message.core.DataManager;
-import main.java.com.ubo.tp.message.ihm.template.RegisterView;
 import main.java.com.ubo.tp.message.datamodel.User;
 
 import java.util.Set;

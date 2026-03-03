@@ -1,4 +1,4 @@
-package main.java.com.ubo.tp.message;
+package main.java.com.ubo.tp.message.datamodel;
 
 public class Response {
     private boolean success;

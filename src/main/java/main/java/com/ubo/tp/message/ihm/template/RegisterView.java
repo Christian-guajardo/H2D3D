@@ -1,8 +1,6 @@
 package main.java.com.ubo.tp.message.ihm.template;
 
-import main.java.com.ubo.tp.message.Response;
-import main.java.com.ubo.tp.message.controller.LoginController;
-import main.java.com.ubo.tp.message.controller.NavigationController;
+import main.java.com.ubo.tp.message.datamodel.Response;
 import main.java.com.ubo.tp.message.controller.RegisterController;
 
 import javax.swing.*;
