@@ -6,13 +6,7 @@ import main.java.com.ubo.tp.message.datamodel.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-/**
- * Session de l'application.
- *
- * @author S.Lucas
- */
 public class Selection implements ISelection {
 	protected User mSelectedUser;
 	protected Channel mSelectedChannel;
