@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
  */
 public class MessageInputView extends JPanel {
 
+
     private final JTextArea inputArea;
     private final JButton sendButton;
 
@@ -62,13 +63,9 @@ public class MessageInputView extends JPanel {
     private void triggerSend() {
         String text = inputArea.getText().trim();
         if (!text.isEmpty()) {
-            sendButton.getActionListeners();
 
             ActionEvent evt = new ActionEvent(this,
                     ActionEvent.ACTION_PERFORMED, text);
-            for (ActionListener l : sendButton.getActionListeners()) {
-
-            }
 
             for (ActionListener l : externalSendListeners) {
                 l.actionPerformed(evt);

@@ -18,10 +18,8 @@ public class UserComponent extends JPanel {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xEEEEEE)));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 8, 6, 8);
+        Insets insets = new Insets(6, 8, 6, 8);
 
-        // Avatar
         JLabel avatar = new JLabel(getInitials(user));
         avatar.setOpaque(true);
         avatar.setBackground(new Color(0x2F80ED));
@@ -29,33 +27,35 @@ public class UserComponent extends JPanel {
         avatar.setHorizontalAlignment(SwingConstants.CENTER);
         avatar.setPreferredSize(new Dimension(36, 36));
         avatar.setFont(avatar.getFont().deriveFont(Font.BOLD, 13f));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridheight = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        add(avatar, gbc);
+        add(avatar, new GridBagConstraints(0, 0,
+                1, 2, 0, 0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                insets, 0, 0));
 
-        // Nom
-        gbc.gridx = 1; gbc.gridy = 0; gbc.gridheight = 1;
-        gbc.weightx = 1.0; gbc.fill = GridBagConstraints.HORIZONTAL;
         JLabel nameLabel = new JLabel(user.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 13f));
-        add(nameLabel, gbc);
+        add(nameLabel, new GridBagConstraints(1, 0,
+                1, 1, 1.0, 0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                insets, 0, 0));
 
-        // Tag
-        gbc.gridy = 1;
         JLabel tagLabel = new JLabel("@" + user.getUserTag());
         tagLabel.setFont(tagLabel.getFont().deriveFont(Font.PLAIN, 11f));
         tagLabel.setForeground(Color.GRAY);
-        add(tagLabel, gbc);
+        add(tagLabel, new GridBagConstraints(1, 1,
+                1, 1, 1.0, 0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                insets, 0, 0));
 
-        // Indicateur online
-        gbc.gridx = 2; gbc.gridy = 0; gbc.gridheight = 2;
-        gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
         JLabel status = new JLabel();
         status.setOpaque(true);
         status.setPreferredSize(new Dimension(10, 10));
         status.setBackground(user.isOnline() ? new Color(0x2ECC71) : new Color(0x95A5A6));
         status.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true));
-        add(status, gbc);
+        add(status, new GridBagConstraints(2, 0,
+                1, 2, 0, 0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                insets, 0, 0));
 
         // Bouton de sélection (invisible — déclenché par clic sur la ligne)
         selectButton = new JButton();
