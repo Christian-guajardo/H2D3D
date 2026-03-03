@@ -1,6 +1,7 @@
-package main.java.com.ubo.tp.message.ihm.template;
+package main.java.com.ubo.tp.message.ihm.template.component;
 
 import main.java.com.ubo.tp.message.datamodel.Message;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;

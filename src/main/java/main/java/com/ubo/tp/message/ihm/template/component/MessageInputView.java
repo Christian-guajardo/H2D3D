@@ -1,4 +1,4 @@
-package main.java.com.ubo.tp.message.ihm.template;
+package main.java.com.ubo.tp.message.ihm.template.component;
 
 import javax.swing.*;
 import java.awt.*;
