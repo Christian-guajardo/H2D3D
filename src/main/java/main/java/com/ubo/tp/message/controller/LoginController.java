@@ -17,13 +17,14 @@ public class LoginController {
     }
 
 
-    public void onLogin(LoginView lv) {
-        String userTagOrName = lv.getUsername();
-        String password = lv.getPassword();
+    public int onLogin(  String password,String userTagOrName) {
+
         User user = login(userTagOrName, password, session);
         if (user != null) {
+            return 0;
             lv.showInfo("Connexion réussie ! Bienvenue, " + user.getName() + " !");
         } else {
+            return 1;
             lv.showError("Erreur de connexion", "Échec de la connexion. Veuillez vérifier vos identifiants.");
         }
     }

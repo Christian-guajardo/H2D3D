@@ -2,6 +2,7 @@ package main.java.com.ubo.tp.message.ihm;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 import main.java.com.ubo.tp.message.ihm.template.ConnectView;
@@ -179,5 +180,17 @@ public class MessageAppMainView {
 
     public void show() {
         mainFrame.setVisible(true);
+    }
+
+    public void addRegisterAction(ActionListener listener) {
+        registerMenuItem.addActionListener(listener);
+    }
+
+    public void addLoginMenuItem(ActionListener listener) {
+        loginMenuItem.addActionListener(listener);
+    }
+
+    public void addChooseExchangeMenuItem(ActionListener listener) {
+        chooseExchangeMenuItem.addActionListener(listener);
     }
 }

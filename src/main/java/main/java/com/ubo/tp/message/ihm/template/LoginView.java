@@ -23,7 +23,7 @@ public class LoginView extends JPanel {
         username = new JTextField(20);
         password = new JPasswordField(20);
         loginButton = new JButton("Se connecter");
-        loginButton.addActionListener(envet->loginController.onLogin(this));
+        loginButton.addActionListener(envet->loginController.onLogin(this.getPassword(),this.getUsername());
         setupLayout();
     }
 

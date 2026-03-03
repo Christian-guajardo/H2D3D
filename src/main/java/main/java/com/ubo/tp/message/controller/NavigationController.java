@@ -29,9 +29,9 @@ public class NavigationController implements ISessionObserver {
     }
 
     private void attachListeners() {
-        mainView.getRegisterMenuItem().addActionListener(e -> showRegisterView());
-        mainView.getLoginMenuItem().addActionListener(e -> showLoginView());
-        mainView.getChooseExchangeMenuItem().addActionListener(e -> handleChooseExchangeDirectory());
+        mainView.addRegisterAction(e -> showRegisterView());
+        mainView.addLoginMenuItem(e -> showLoginView());
+        mainView.addChooseExchangeMenuItem(e -> handleChooseExchangeDirectory());
     }
 
     private void showRegisterView() {
