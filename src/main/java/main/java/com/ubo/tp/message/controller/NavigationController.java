@@ -10,24 +10,20 @@ import main.java.com.ubo.tp.message.ihm.template.RegisterView;
 
 public class NavigationController implements ISessionObserver {
     private final MessageAppMainView mainView;
-    private final UserController userController;
-    private final Session session;
+
     private final DataManager dataManager;
 
     private final LoginController loginController;
     private final RegisterController registerController;
 
     public NavigationController(MessageAppMainView mainView,
-                                UserController userController,
-                                Session session,
-                                DataManager dataManager) {
+                                DataManager dataManager,
+                                LoginController loginController,
+                                RegisterController registerController) {
         this.mainView = mainView;
-        this.userController = userController;
-        this.session = session;
         this.dataManager = dataManager;
-
-        this.loginController = new LoginController(userController, session);
-        this.registerController = new RegisterController(userController);
+        this.loginController = loginController;
+        this.registerController = registerController;
 
         attachListeners();
     }

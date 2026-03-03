@@ -3,7 +3,6 @@ package main.java.com.ubo.tp.message.ihm;
 import java.io.File;
 
 import main.java.com.ubo.tp.message.core.DataManager;
-import main.java.com.ubo.tp.message.controller.UserController;
 import main.java.com.ubo.tp.message.controller.MessageAppMainController;
 
 import javax.swing.*;

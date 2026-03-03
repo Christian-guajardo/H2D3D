@@ -10,18 +10,16 @@ public class MessageAppMainController {
     private final DataManager dataManager;
     private final MessageAppMainView mainView;
     private final Session session;
-
-    private final UserController userController;
     private final NavigationController navigationController;
-
+    private final RegisterController registerController;
+    private final LoginController loginController;
     public MessageAppMainController(DataManager dataManager, MessageAppMainView mainView) {
         this.dataManager = dataManager;
         this.mainView = mainView;
         this.session = new Session();
-        this.userController = new UserController(dataManager);
-        this.navigationController = new NavigationController(
-                mainView, userController, session, dataManager
-        );
+        this.loginController = new LoginController(dataManager, session);
+        this.registerController = new RegisterController(dataManager);
+        this.navigationController = new NavigationController(mainView,dataManager,loginController,registerController);
         session.addObserver(this.navigationController);
     }
 
