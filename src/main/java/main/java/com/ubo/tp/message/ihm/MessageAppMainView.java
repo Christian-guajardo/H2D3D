@@ -96,27 +96,17 @@ public class MessageAppMainView {
     }
 
     // État connecté
-    public void showConnectedState() {
+    public void showConnectedState(JPanel connectView) {
         menuBar.remove(connectionMenu);
         if (accountMenu.getParent() == null) {
-            menuBar.add(accountMenu, 1); // Après "Fichier"
+            menuBar.add(accountMenu, 1);
         }
         menuBar.revalidate();
         menuBar.repaint();
 
-        // Afficher l'interface connectée
         mainFrame.getContentPane().removeAll();
         mainFrame.getContentPane().setLayout(new BorderLayout());
-
-        ConnectView con = new ConnectView();
-        con.setPreferredSize(new Dimension(240, 0));
-        mainFrame.getContentPane().add(con, BorderLayout.WEST);
-
-        JPanel center = new JPanel(new BorderLayout());
-        JLabel placeholder = new JLabel("Sélectionnez un utilisateur pour démarrer une conversation.", SwingConstants.CENTER);
-        center.add(placeholder, BorderLayout.CENTER);
-        mainFrame.getContentPane().add(center, BorderLayout.CENTER);
-
+        mainFrame.getContentPane().add(connectView, BorderLayout.CENTER);
         mainFrame.revalidate();
         mainFrame.repaint();
     }

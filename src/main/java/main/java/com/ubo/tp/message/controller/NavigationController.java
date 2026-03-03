@@ -5,8 +5,7 @@ import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
-import main.java.com.ubo.tp.message.ihm.template.LoginView;
-import main.java.com.ubo.tp.message.ihm.template.RegisterView;
+import main.java.com.ubo.tp.message.ihm.template.*;
 
 public class NavigationController implements ISessionObserver {
     private final MessageAppMainView mainView;
@@ -57,7 +56,15 @@ public class NavigationController implements ISessionObserver {
 
     @Override
     public void notifyLogin(User connectedUser) {
-        mainView.showConnectedState();
+        UserListView userListView = new UserListView();
+        ChannelListView channelListView = new ChannelListView();
+        MessageListView messageListView = new MessageListView();
+        MessageInputView messageInputView = new MessageInputView();
+        
+        ConnectView connectView = new ConnectView(
+                userListView, channelListView,
+                messageListView, messageInputView);
+        mainView.showConnectedState(connectView);
     }
 
     @Override
