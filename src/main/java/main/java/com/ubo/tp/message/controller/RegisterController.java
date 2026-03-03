@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.controller;
 
+import main.java.com.ubo.tp.message.Response;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.ihm.template.RegisterView;
 import main.java.com.ubo.tp.message.datamodel.User;
@@ -50,5 +51,20 @@ public class RegisterController {
         }
 
         return user;
+    }
+
+    public Response onRegister(String tag, String username, String password, String confirmPassword) {
+        if (tag.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            return new Response(false, "Tous les champs doivent être remplis !");
+        }
+        if (!password.equals(confirmPassword)) {
+            return new Response(false, "Les mots de passe ne correspondent pas !");
+        }
+
+        User user = register(tag, username, password);
+        if (user == null) {
+            return new Response(false, "Échec de l'inscription. Le tag est déjà utilisé !");
+        }
+        return new Response(true, "Inscription réussie ! Vous pouvez maintenant vous connecter !");
     }
 }
