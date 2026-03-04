@@ -24,6 +24,7 @@ public class UserController implements IDatabaseObserver {
         this.userListView = new UserListView();
         this.userListView.refreshUsers(dataManager.getUsers());
         attachListener();
+
     }
 
     public void attachListener() {
@@ -49,17 +50,20 @@ public class UserController implements IDatabaseObserver {
     @Override
     public void notifyUserAdded(User addedUser) {
         this.userListView.refreshUsers(dataManager.getUsers());
+        attachListener();
     }
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
         this.userListView.refreshUsers(dataManager.getUsers());
+        attachListener();
 
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
         this.userListView.refreshUsers(dataManager.getUsers());
+        attachListener();
     }
 
     @Override

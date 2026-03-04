@@ -26,15 +26,12 @@ public class ChannelController implements IDatabaseObserver {
         this.mDataManager = dataManager;
         this.selection = selection;
         this.channelListView = new ChannelListView();
+        this.channelListView.refreshChannel(mDataManager.getChannels());
         this.attachListeners();
     }
 
-    public void changeCurrentSelection(Channel channel) {
-        selection.changeSelection(channel);
-    }
-
     private void attachListeners() {
-        channelListView.addChannelSelectionListener(channel -> changeCurrentSelection(channel));
+        channelListView.addChannelSelectionListener(channel -> selection.changeSelection(channel));
     }
 
     @Override
@@ -70,15 +67,18 @@ public class ChannelController implements IDatabaseObserver {
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
         this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.attachListeners();
     }
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
         this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.attachListeners();
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
         this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.attachListeners();
     }
 }
