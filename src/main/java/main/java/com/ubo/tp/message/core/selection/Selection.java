@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.core.selection;
 
+import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.datamodel.AbstractMessageAppObject;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.User;
@@ -24,12 +25,30 @@ public class Selection implements ISelection {
 	}
 
 	@Override
+	public void notifyObservers() {
+		for (ISelectionObserver observer : mObservers) {
+			observer.notify(getmSelected());
+		}
+	}
+
+	@Override
 	public AbstractMessageAppObject getmSelected() {
 		if (mSelectedUser == null) {
 			return mSelectedChannel;
 		}else{
 			return mSelectedUser;
 		}
+	}
+
+	public void changeSelection(User mSelectedUser) {
+		this.mSelectedUser = mSelectedUser;
+		this.mSelectedChannel = null;
+		notifyObservers();
+	}
+	public void changeSelection(Channel mSelectedChannel) {
+		this.mSelectedChannel = mSelectedChannel;
+		this.mSelectedUser = null;
+		notifyObservers();
 	}
 
 

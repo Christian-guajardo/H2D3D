@@ -11,6 +11,8 @@ public interface ISelection {
 
 	void removeObserver(ISelectionObserver observer);
 
+	void notifyObservers();
+
 	AbstractMessageAppObject getmSelected();
 
 }

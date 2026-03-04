@@ -21,11 +21,13 @@ public class NavigationController implements ISessionObserver {
     public NavigationController(MessageAppMainView mainView,
                                 DataManager dataManager,
                                 LoginController loginController,
-                                RegisterController registerController) {
+                                RegisterController registerController,
+                                ConnectController connectController) {
         this.mainView = mainView;
         this.dataManager = dataManager;
         this.loginController = loginController;
         this.registerController = registerController;
+
 
         attachListeners();
     }
