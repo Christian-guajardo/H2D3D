@@ -21,6 +21,7 @@ public class MessageAppMainController {
     private final NavigationController navigationController;
     private final RegisterController registerController;
     private final LoginController loginController;
+    private final MessageInputController messageInputController;
     public MessageAppMainController(DataManager dataManager, MessageAppMainView mainView) {
         this.dataManager = dataManager;
         this.mainView = mainView;
@@ -28,11 +29,11 @@ public class MessageAppMainController {
         this.session = new Session();
         this.loginController = new LoginController(dataManager, session);
         this.registerController = new RegisterController(dataManager);
-
+        this.messageController = new MessageController(dataManager, session);
         this.channelController = new ChannelController(dataManager, selection);
         this.userController = new UserController(dataManager, selection);
-        this.messageController = new MessageController(dataManager, session);
-        this.connectController = new ConnectController(messageController, channelController, userController);
+        this.messageInputController = new MessageInputController(dataManager, session);
+        this.connectController = new ConnectController(messageController,messageInputController, channelController, userController);
         this.navigationController = new NavigationController(mainView,dataManager,loginController,registerController,connectController);
 
 

@@ -1,6 +1,7 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
 import main.java.com.ubo.tp.message.controller.MessageController;
+import main.java.com.ubo.tp.message.controller.MessageInputController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,14 +17,15 @@ import java.util.ArrayList;
  * La commande de l'ActionEvent contient le texte saisi.
  */
 public class MessageInputView extends JPanel {
-    private final MessageController messageController;
+    private final MessageInputController messageInputController;
 
     private final JTextArea inputArea;
     private final JButton sendButton;
 
-    public MessageInputView(MessageController messageController) {
+    public MessageInputView(MessageInputController messageInputController) {
         super(new BorderLayout(6, 0));
-        this.messageController = messageController;
+        this.messageInputController = messageInputController;
+
 
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(0xDDDDDD)),
@@ -68,13 +70,7 @@ public class MessageInputView extends JPanel {
     private void triggerSend() {
         String text = inputArea.getText().trim();
         if (!text.isEmpty()) {
-
-            ActionEvent evt = new ActionEvent(this,
-                    ActionEvent.ACTION_PERFORMED, text);
-
-            for (ActionListener l : externalSendListeners) {
-                l.actionPerformed(evt);
-            }
+            this.messageInputController.sendMessage(text);
             inputArea.setText("");
         }
     }

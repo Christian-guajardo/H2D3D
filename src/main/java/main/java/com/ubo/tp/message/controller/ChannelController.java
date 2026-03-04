@@ -18,6 +18,10 @@ public class ChannelController implements IDatabaseObserver {
     private final Selection selection;
     private ChannelListView channelListView;
 
+    public ChannelListView getChannelListView() {
+        return channelListView;
+    }
+
     public ChannelController(DataManager dataManager, Selection selection) {
         this.mDataManager = dataManager;
         this.selection = selection;

@@ -14,11 +14,15 @@ public class UserController implements IDatabaseObserver {
     private final Selection selection;
     private UserListView userListView;
 
+    public UserListView getUserListView() {
+        return userListView;
+    }
 
     public UserController(DataManager dataManager, Selection selection) {
         this.dataManager = dataManager;
         this.selection = selection;
         this.userListView = new UserListView();
+        this.userListView.refreshUsers(dataManager.getUsers());
         attachListener();
     }
 
