@@ -16,9 +16,10 @@ public class UserController {
         this.dataManager = dataManager;
         this.selection = selection;
         this.userListView = new UserListView();
+        attachListener();
     }
 
-    public void refreshUserList() {
+    public void attachListener() {
         userListView.addUserSelectListener(user -> selection.changeSelection(user));
     }
 
