@@ -3,6 +3,7 @@ package main.java.com.ubo.tp.message.ihm.template.component;
 import main.java.com.ubo.tp.message.datamodel.User;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,23 +40,9 @@ public class UserListView extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
-    public void setUsers(List<User> users) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> setUsers(users));
-            return;
-        }
+    public void refreshUsers(Set<User> users) {
         listPanel.removeAll();
         for (User u : users) addUserRow(u);
-        listPanel.revalidate();
-        listPanel.repaint();
-    }
-
-    public void addUser(User user) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> addUser(user));
-            return;
-        }
-        addUserRow(user);
         listPanel.revalidate();
         listPanel.repaint();
     }
