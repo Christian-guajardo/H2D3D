@@ -85,11 +85,13 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
+        this.refreshMessages();
 
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
+        this.refreshMessages();
 
     }
 
