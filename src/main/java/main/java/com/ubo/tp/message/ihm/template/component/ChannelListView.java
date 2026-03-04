@@ -16,12 +16,10 @@ public class ChannelListView extends JPanel {
 
     private final JPanel listPanel;
     private final JButton createButton;
-    private final List<ActionListener> selectListeners = new ArrayList<>();
-    private final ChannelController channelController;
+    private final List<ChannelComponent> channelComponents = new ArrayList<>();
 
-    public ChannelListView(ChannelController channelController) {
+    public ChannelListView() {
         super(new BorderLayout());
-        this.channelController = channelController;
         setBackground(new Color(0x2C2C2C));
 
         // En-tête
@@ -80,9 +78,7 @@ public class ChannelListView extends JPanel {
 
     private void addChannelRow(Channel channel) {
         ChannelComponent comp = new ChannelComponent(channel);
-        for (ActionListener l : selectListeners) {
-            comp.addSelectListener(e -> this.channelController.changeCurrentSelection(comp.getChannel()));
-        }
+        channelComponents.add(comp);
         listPanel.add(comp);
     }
 
@@ -91,7 +87,9 @@ public class ChannelListView extends JPanel {
      * La commande de l'ActionEvent contient l'UUID du canal.
      */
     public void addChannelSelectListener(ActionListener listener) {
-        selectListeners.add(listener);
+        for (ChannelComponent comp : channelComponents) {
+            comp.addSelectListener();
+        }
     }
 
     /**
