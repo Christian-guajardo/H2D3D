@@ -4,6 +4,8 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 /**
@@ -55,14 +57,14 @@ public class ChannelComponent extends JPanel {
                 insets, 0, 0));
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+        addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
                 if (onSelect != null) onSelect.accept(channel);
             }
-            @Override public void mouseEntered(java.awt.event.MouseEvent e) {
+            @Override public void mouseEntered(MouseEvent e) {
                 setBackground(new Color(0x505050));
             }
-            @Override public void mouseExited(java.awt.event.MouseEvent e) {
+            @Override public void mouseExited(MouseEvent e) {
                 setBackground(new Color(0x3A3A3A));
             }
         });

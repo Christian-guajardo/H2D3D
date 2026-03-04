@@ -3,6 +3,8 @@ package main.java.com.ubo.tp.message.ihm.template.component;
 import main.java.com.ubo.tp.message.datamodel.User;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 /**
@@ -64,14 +66,14 @@ public class UserComponent extends JPanel {
                 insets, 0, 0));
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+        addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
                 if (onSelect != null) onSelect.accept(user);
             }
-            @Override public void mouseEntered(java.awt.event.MouseEvent e) {
+            @Override public void mouseEntered(MouseEvent e) {
                 setBackground(new Color(0xF5F5F5));
             }
-            @Override public void mouseExited(java.awt.event.MouseEvent e) {
+            @Override public void mouseExited(MouseEvent e) {
                 setBackground(Color.WHITE);
             }
         });
