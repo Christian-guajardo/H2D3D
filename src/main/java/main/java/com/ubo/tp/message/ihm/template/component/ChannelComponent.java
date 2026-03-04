@@ -3,7 +3,6 @@ package main.java.com.ubo.tp.message.ihm.template.component;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
@@ -13,9 +12,14 @@ import java.util.function.Consumer;
  * Expose addSelectListener() — pas de référence vers le contrôleur.
  */
 public class ChannelComponent extends JPanel {
+
+    private static final Color BG_DEFAULT   = new Color(0x3A3A3A);
+    private static final Color BG_HOVER     = new Color(0x505050);
+    private static final Color BG_SELECTED  = new Color(0x2F80ED);
+
     private Consumer<Channel> onSelect;
     private final Channel channel;
-
+    private boolean selected;
 
     public Channel getChannel() {
         return channel;
@@ -24,7 +28,9 @@ public class ChannelComponent extends JPanel {
     public ChannelComponent(Channel channel) {
         super(new GridBagLayout());
         this.channel = channel;
-        setBackground(new Color(0x3A3A3A));
+        this.selected = false;
+        setOpaque(true);
+        setBackground(BG_DEFAULT);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x555555)));
 
         Insets insets = new Insets(6, 10, 6, 10);
@@ -33,6 +39,7 @@ public class ChannelComponent extends JPanel {
         JLabel hashLabel = new JLabel("#");
         hashLabel.setFont(hashLabel.getFont().deriveFont(Font.BOLD, 16f));
         hashLabel.setForeground(new Color(0xAAAAAA));
+        hashLabel.setOpaque(false);
         add(hashLabel, new GridBagConstraints(0, 0,
                 1, 1, 0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
@@ -42,6 +49,7 @@ public class ChannelComponent extends JPanel {
         JLabel nameLabel = new JLabel(channel.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.PLAIN, 13f));
         nameLabel.setForeground(Color.WHITE);
+        nameLabel.setOpaque(false);
         add(nameLabel, new GridBagConstraints(1, 0,
                 1, 1, 1.0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
@@ -51,6 +59,7 @@ public class ChannelComponent extends JPanel {
         JLabel creatorLabel = new JLabel("par @" + channel.getCreator().getUserTag());
         creatorLabel.setFont(creatorLabel.getFont().deriveFont(Font.ITALIC, 10f));
         creatorLabel.setForeground(new Color(0x888888));
+        creatorLabel.setOpaque(false);
         add(creatorLabel, new GridBagConstraints(2, 0,
                 1, 1, 0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
@@ -62,12 +71,27 @@ public class ChannelComponent extends JPanel {
                 if (onSelect != null) onSelect.accept(channel);
             }
             @Override public void mouseEntered(MouseEvent e) {
-                setBackground(new Color(0x505050));
+                if (!selected) setBackground(BG_HOVER);
             }
             @Override public void mouseExited(MouseEvent e) {
-                setBackground(new Color(0x3A3A3A));
+                if (!selected) setBackground(BG_DEFAULT);
             }
         });
+    }
+
+    /** Change l'état de sélection visuelle. */
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        setBackground(selected ? BG_SELECTED : BG_DEFAULT);
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
     }
 
     /** Le contrôleur s'abonne ici. */

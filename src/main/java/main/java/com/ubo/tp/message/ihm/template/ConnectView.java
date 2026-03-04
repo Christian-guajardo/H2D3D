@@ -31,14 +31,17 @@ public class ConnectView extends JPanel {
         this.channelListView = channelListView;
         this.messageListView = messageListView;
         this.messageInputView = messageInputView;
-
         this.connectController = connectController;
+        setOpaque(true);
+        setBackground(Color.WHITE);
         initGui();
     }
 
     private void initGui() {
         // Panneau gauche : canaux (haut) + utilisateurs (bas)
         JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setOpaque(true);
+        leftPanel.setBackground(new Color(0x2C2C2C));
         leftPanel.setPreferredSize(new Dimension(220, 0));
         channelListView.setPreferredSize(new Dimension(220, 200));
         leftPanel.add(channelListView, BorderLayout.NORTH);
@@ -46,6 +49,8 @@ public class ConnectView extends JPanel {
 
         // Panneau centre : messages + saisie
         JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setOpaque(true);
+        centerPanel.setBackground(Color.WHITE);
         centerPanel.add(messageListView,  BorderLayout.CENTER);
         centerPanel.add(messageInputView, BorderLayout.SOUTH);
 

@@ -17,9 +17,11 @@ public class ChannelListView extends JPanel {
 
     public ChannelListView() {
         super(new BorderLayout());
+        setOpaque(true);
         setBackground(new Color(0x2C2C2C));
 
         JPanel header = new JPanel(new BorderLayout(5, 0));
+        header.setOpaque(true);
         header.setBackground(new Color(0x2C2C2C));
         header.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
 
@@ -41,13 +43,17 @@ public class ChannelListView extends JPanel {
 
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setOpaque(true);
         listPanel.setBackground(new Color(0x2C2C2C));
 
         JScrollPane scroll = new JScrollPane(listPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setBorder(null);
+        scroll.setOpaque(true);
         scroll.setBackground(new Color(0x2C2C2C));
+        scroll.getViewport().setOpaque(true);
+        scroll.getViewport().setBackground(new Color(0x2C2C2C));
         add(scroll, BorderLayout.CENTER);
     }
 
@@ -55,6 +61,7 @@ public class ChannelListView extends JPanel {
         listPanel.removeAll();
         channelComponents.clear(); // FIX: vider la liste avant de la reconstruire
         for (Channel c : channels) addChannelRow(c);
+        listPanel.add(Box.createVerticalGlue());
         listPanel.revalidate();
         listPanel.repaint();
     }
@@ -65,6 +72,13 @@ public class ChannelListView extends JPanel {
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
         channelComponents.add(comp);
         listPanel.add(comp);
+    }
+
+    /** Marque visuellement le canal sélectionné. */
+    public void setSelectedChannel(Channel channel) {
+        for (ChannelComponent comp : channelComponents) {
+            comp.setSelected(comp.getChannel().equals(channel));
+        }
     }
 
     public void addCreateChannelListener(ActionListener listener) {

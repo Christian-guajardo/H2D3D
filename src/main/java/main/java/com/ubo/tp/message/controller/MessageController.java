@@ -10,6 +10,7 @@ import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class MessageController implements ISelectionObserver, IDatabaseObserver {
@@ -48,6 +49,7 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     }
 
     public Set<Message> getCurrentMessages(){
+        // getSelected user ou channel pour les différencier
         Set<Message> messages = mDataManager.getMessages().stream()
                 .filter(m -> m.getRecipient().equals(selectedObject.getUuid()))
                 .collect(java.util.stream.Collectors.toSet());

@@ -16,15 +16,17 @@ public class MessageComponent extends JPanel {
             new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     public MessageComponent(Message message) {
-        super(new BorderLayout(6, 4));
+        super(new BorderLayout(6, 2));
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xE0E0E0)),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
         setBackground(Color.WHITE);
+        setOpaque(true);
 
         // En-tête : @tag  +  date
         JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
+        header.setOpaque(true);
+        header.setBackground(Color.WHITE);
 
         JLabel senderLabel = new JLabel("@" + message.getSender().getUserTag());
         senderLabel.setFont(senderLabel.getFont().deriveFont(Font.BOLD, 12f));
@@ -37,16 +39,29 @@ public class MessageComponent extends JPanel {
         header.add(senderLabel, BorderLayout.WEST);
         header.add(dateLabel,   BorderLayout.EAST);
 
-        // Corps
-        JTextArea textArea = new JTextArea(message.getText());
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setOpaque(false);
-        textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 13f));
-        textArea.setBorder(null);
+        // Corps — JLabel HTML pour auto-sizing au lieu de JTextArea
+        JLabel textLabel = new JLabel("<html><body style='width:100%'>"
+                + escapeHtml(message.getText()) + "</body></html>");
+        textLabel.setFont(textLabel.getFont().deriveFont(Font.PLAIN, 13f));
+        textLabel.setForeground(Color.DARK_GRAY);
+        textLabel.setOpaque(true);
+        textLabel.setBackground(Color.WHITE);
 
-        add(header,   BorderLayout.NORTH);
-        add(textArea, BorderLayout.CENTER);
+        add(header,    BorderLayout.NORTH);
+        add(textLabel, BorderLayout.CENTER);
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        // Empêche le BoxLayout de stretch en hauteur
+        return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
+    }
+
+    private static String escapeHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;")
+                   .replace("<", "&lt;")
+                   .replace(">", "&gt;")
+                   .replace("\n", "<br>");
     }
 }

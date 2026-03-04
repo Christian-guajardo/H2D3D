@@ -25,7 +25,10 @@ public class UserController implements IDatabaseObserver {
         this.dataManager = dataManager;
         this.selection = selection;
         this.userListView = new UserListView();
-        // FIX: filtrer l'utilisateur inconnu dès le départ
+        this.userListView.addUserSelectListener(user -> {
+            selection.changeSelection(user);
+            userListView.setSelectedUser(user);
+        });
         this.userListView.refreshUsers(getFilteredUsers());
         attachListener();
     }

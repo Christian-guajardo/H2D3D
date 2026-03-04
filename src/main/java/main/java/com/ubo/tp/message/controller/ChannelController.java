@@ -3,15 +3,11 @@ package main.java.com.ubo.tp.message.controller;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.Selection;
-import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.ChannelListView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class ChannelController implements IDatabaseObserver {
     private final DataManager mDataManager;
@@ -26,6 +22,10 @@ public class ChannelController implements IDatabaseObserver {
         this.mDataManager = dataManager;
         this.selection = selection;
         this.channelListView = new ChannelListView();
+        this.channelListView.addChannelSelectionListener(channel -> {
+            selection.changeSelection(channel);
+            channelListView.setSelectedChannel(channel);
+        });
         this.channelListView.refreshChannel(mDataManager.getChannels());
         this.attachListeners();
     }

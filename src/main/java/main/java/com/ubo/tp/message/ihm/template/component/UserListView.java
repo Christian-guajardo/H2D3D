@@ -1,6 +1,7 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
 import main.java.com.ubo.tp.message.datamodel.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
@@ -15,6 +16,8 @@ public class UserListView extends JPanel {
 
     public UserListView() {
         super(new BorderLayout());
+        setOpaque(true);
+        setBackground(new Color(0x474747));
 
         JLabel title = new JLabel("Utilisateurs", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 13f));
@@ -26,12 +29,17 @@ public class UserListView extends JPanel {
 
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setOpaque(true);
         listPanel.setBackground(new Color(0x474747));
 
         JScrollPane scroll = new JScrollPane(listPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setBorder(null);
+        scroll.setOpaque(true);
+        scroll.setBackground(new Color(0x474747));
+        scroll.getViewport().setOpaque(true);
+        scroll.getViewport().setBackground(new Color(0x474747));
         add(scroll, BorderLayout.CENTER);
     }
 
@@ -39,6 +47,7 @@ public class UserListView extends JPanel {
         listPanel.removeAll();
         userComponents.clear(); // FIX: vider la liste avant de la reconstruire
         for (User u : users) addUserRow(u);
+        listPanel.add(Box.createVerticalGlue());
         listPanel.revalidate();
         listPanel.repaint();
     }
@@ -49,6 +58,13 @@ public class UserListView extends JPanel {
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
         userComponents.add(comp);
         listPanel.add(comp);
+    }
+
+    /** Marque visuellement l'utilisateur sélectionné. */
+    public void setSelectedUser(User user) {
+        for (UserComponent comp : userComponents) {
+            comp.setSelected(comp.getUser().equals(user));
+        }
     }
 
     public void addUserSelectListener(Consumer<User> listener) {

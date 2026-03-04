@@ -13,8 +13,13 @@ import java.util.function.Consumer;
  */
 public class UserComponent extends JPanel {
 
+    private static final Color BG_DEFAULT   = Color.WHITE;
+    private static final Color BG_HOVER     = new Color(0xF5F5F5);
+    private static final Color BG_SELECTED  = new Color(0xD6EAFF);
+
     private Consumer<User> onSelect;
     private final User user;
+    private boolean selected;
 
     public User getUser() {
         return user;
@@ -23,7 +28,9 @@ public class UserComponent extends JPanel {
     public UserComponent(User user) {
         super(new GridBagLayout());
         this.user = user;
-        setBackground(Color.WHITE);
+        this.selected = false;
+        setOpaque(true);
+        setBackground(BG_DEFAULT);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xEEEEEE)));
 
         Insets insets = new Insets(6, 8, 6, 8);
@@ -42,6 +49,7 @@ public class UserComponent extends JPanel {
 
         JLabel nameLabel = new JLabel(user.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 13f));
+        nameLabel.setOpaque(false);
         add(nameLabel, new GridBagConstraints(1, 0,
                 1, 1, 1.0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
@@ -50,6 +58,7 @@ public class UserComponent extends JPanel {
         JLabel tagLabel = new JLabel("@" + user.getUserTag());
         tagLabel.setFont(tagLabel.getFont().deriveFont(Font.PLAIN, 11f));
         tagLabel.setForeground(Color.GRAY);
+        tagLabel.setOpaque(false);
         add(tagLabel, new GridBagConstraints(1, 1,
                 1, 1, 1.0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
@@ -71,12 +80,27 @@ public class UserComponent extends JPanel {
                 if (onSelect != null) onSelect.accept(user);
             }
             @Override public void mouseEntered(MouseEvent e) {
-                setBackground(new Color(0xF5F5F5));
+                if (!selected) setBackground(BG_HOVER);
             }
             @Override public void mouseExited(MouseEvent e) {
-                setBackground(Color.WHITE);
+                if (!selected) setBackground(BG_DEFAULT);
             }
         });
+    }
+
+    /** Change l'état de sélection visuelle. */
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        setBackground(selected ? BG_SELECTED : BG_DEFAULT);
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
     }
 
     /**
