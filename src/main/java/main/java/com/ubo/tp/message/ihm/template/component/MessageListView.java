@@ -1,11 +1,11 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
+import main.java.com.ubo.tp.message.controller.MessageController;
 import main.java.com.ubo.tp.message.datamodel.Message;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -13,11 +13,12 @@ import java.util.List;
  * Aucune référence vers un contrôleur.
  */
 public class MessageListView extends JPanel {
-
+    private final MessageController messageController;
     private final JPanel listPanel;
 
-    public MessageListView() {
+    public MessageListView(MessageController messageController) {
         super(new BorderLayout());
+        this.messageController = messageController;
 
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
@@ -33,12 +34,9 @@ public class MessageListView extends JPanel {
     }
 
     /** Remplace toute la liste et trie par date croissante. */
-    public void setMessages(List<Message> messages) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> setMessages(messages));
-            return;
-        }
+    public void refreshMesage() {
         listPanel.removeAll();
+        Set<Message> messages = messageController.getCurrentMessages();
         List<Message> sorted = new ArrayList<>(messages);
         sorted.sort(Comparator.comparingLong(Message::getEmissionDate));
         for (Message m : sorted) {

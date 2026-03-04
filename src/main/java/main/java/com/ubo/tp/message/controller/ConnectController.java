@@ -10,4 +10,16 @@ public class ConnectController {
         this.channelController = channelController;
         this.userController = userController;
     }
+
+    public UserController getUserController() {
+        return userController;
+    }
+
+    public ChannelController getChannelController() {
+        return channelController;
+    }
+
+    public MessageController getMessageController() {
+        return messageController;
+    }
 }

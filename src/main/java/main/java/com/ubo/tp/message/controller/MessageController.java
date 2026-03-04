@@ -6,6 +6,8 @@ import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.AbstractMessageAppObject;
 import main.java.com.ubo.tp.message.datamodel.Message;
 
+import java.util.Set;
+
 public class MessageController implements ISelectionObserver {
     private DataManager mDataManager;
     private Session session;
@@ -31,5 +33,15 @@ public class MessageController implements ISelectionObserver {
     @Override
     public void notify(AbstractMessageAppObject selectedObject) {
         this.setSelectedObject(selectedObject);
+    }
+
+    public Set<Message> getCurrentMessages(){
+        Set<Message> messages = mDataManager.getMessages().stream()
+                .filter(m -> m.getRecipient().equals(selectedObject.getUuid()))
+                .collect(java.util.stream.Collectors.toSet());
+        if (messages == null) {
+            return new java.util.HashSet<>();
+        }
+        return messages;
     }
 }

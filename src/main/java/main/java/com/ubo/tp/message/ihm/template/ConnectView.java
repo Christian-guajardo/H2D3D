@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.ihm.template;
 
+import main.java.com.ubo.tp.message.controller.ConnectController;
 import main.java.com.ubo.tp.message.ihm.template.component.ChannelListView;
 import main.java.com.ubo.tp.message.ihm.template.component.MessageInputView;
 import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
@@ -13,13 +14,29 @@ import java.awt.*;
  * Reçoit les composants déjà construits — ne crée rien.
  */
 public class ConnectView extends JPanel {
+    private final UserListView userListView;
+    private final ChannelListView channelListView;
+    private final MessageListView messageListView;
+    private final MessageInputView messageInputView;
+    private final ConnectController connectController;
 
     public ConnectView(UserListView userListView,
                        ChannelListView channelListView,
                        MessageListView messageListView,
-                       MessageInputView messageInputView) {
-        super(new BorderLayout());
+                       MessageInputView messageInputView,
+                       ConnectController connectController) {
 
+        super(new BorderLayout());
+        this.userListView = userListView;
+        this.channelListView = channelListView;
+        this.messageListView = messageListView;
+        this.messageInputView = messageInputView;
+
+        this.connectController = connectController;
+        initGui();
+    }
+
+    private void initGui() {
         // Panneau gauche : canaux (haut) + utilisateurs (bas)
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(220, 0));

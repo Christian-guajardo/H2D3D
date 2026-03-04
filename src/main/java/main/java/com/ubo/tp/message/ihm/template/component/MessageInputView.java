@@ -1,11 +1,14 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
+import main.java.com.ubo.tp.message.controller.MessageController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 /**
  * Composant graphique de saisie d'un message.
@@ -13,13 +16,15 @@ import java.awt.event.KeyEvent;
  * La commande de l'ActionEvent contient le texte saisi.
  */
 public class MessageInputView extends JPanel {
-
+    private final MessageController messageController;
 
     private final JTextArea inputArea;
     private final JButton sendButton;
 
-    public MessageInputView() {
+    public MessageInputView(MessageController messageController) {
         super(new BorderLayout(6, 0));
+        this.messageController = messageController;
+
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(0xDDDDDD)),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));

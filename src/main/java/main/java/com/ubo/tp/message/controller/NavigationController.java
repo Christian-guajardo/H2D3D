@@ -17,6 +17,7 @@ public class NavigationController implements ISessionObserver {
 
     private final LoginController loginController;
     private final RegisterController registerController;
+    private final ConnectController connectController;
 
     public NavigationController(MessageAppMainView mainView,
                                 DataManager dataManager,
@@ -27,7 +28,7 @@ public class NavigationController implements ISessionObserver {
         this.dataManager = dataManager;
         this.loginController = loginController;
         this.registerController = registerController;
-
+        this.connectController = connectController;
 
         attachListeners();
     }
@@ -61,14 +62,12 @@ public class NavigationController implements ISessionObserver {
 
     @Override
     public void notifyLogin(User connectedUser) {
-        UserListView userListView = new UserListView();
-        ChannelListView channelListView = new ChannelListView();
-        MessageListView messageListView = new MessageListView();
-        MessageInputView messageInputView = new MessageInputView();
+        UserListView userListView = new UserListView(connectController.getUserController());
+        ChannelListView channelListView = new ChannelListView(connectController.getChannelController());
+        MessageListView messageListView = new MessageListView(connectController.getMessageController());
+        MessageInputView messageInputView = new MessageInputView(connectController.getMessageController());
         
-        ConnectView connectView = new ConnectView(
-                userListView, channelListView,
-                messageListView, messageInputView);
+        ConnectView connectView = new ConnectView(userListView, channelListView, messageListView, messageInputView, connectController);
         mainView.showConnectedState(connectView);
     }
 
