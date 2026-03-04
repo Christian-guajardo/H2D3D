@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -56,23 +57,9 @@ public class ChannelListView extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
-    public void setChannels(List<Channel> channels) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> setChannels(channels));
-            return;
-        }
+    public void refreshChannel(Set<Channel> channels) {
         listPanel.removeAll();
         for (Channel c : channels) addChannelRow(c);
-        listPanel.revalidate();
-        listPanel.repaint();
-    }
-
-    public void addChannel(Channel channel) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> addChannel(channel));
-            return;
-        }
-        addChannelRow(channel);
         listPanel.revalidate();
         listPanel.repaint();
     }
