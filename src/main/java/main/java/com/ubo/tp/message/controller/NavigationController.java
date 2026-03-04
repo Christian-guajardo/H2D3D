@@ -64,10 +64,8 @@ public class NavigationController implements ISessionObserver {
     public void notifyLogin(User connectedUser) {
         UserListView userListView = new UserListView(connectController.getUserController());
         ChannelListView channelListView = new ChannelListView(connectController.getChannelController());
-        MessageListView messageListView = new MessageListView(connectController.getMessageController());
         MessageInputView messageInputView = new MessageInputView(connectController.getMessageController());
-        
-        ConnectView connectView = new ConnectView(userListView, channelListView, messageListView, messageInputView, connectController);
+        ConnectView connectView = new ConnectView(userListView, channelListView, connectController.getMessageController().getMessageListView(), messageInputView, connectController);
         mainView.showConnectedState(connectView);
     }
 

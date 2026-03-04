@@ -13,12 +13,10 @@ import java.util.List;
  * Aucune référence vers un contrôleur.
  */
 public class MessageListView extends JPanel {
-    private final MessageController messageController;
     private final JPanel listPanel;
 
-    public MessageListView(MessageController messageController) {
+    public MessageListView() {
         super(new BorderLayout());
-        this.messageController = messageController;
 
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
@@ -34,9 +32,8 @@ public class MessageListView extends JPanel {
     }
 
     /** Remplace toute la liste et trie par date croissante. */
-    public void refreshMesage() {
+    public void refreshMessage(Set<Message> messages) {
         listPanel.removeAll();
-        Set<Message> messages = messageController.getCurrentMessages();
         List<Message> sorted = new ArrayList<>(messages);
         sorted.sort(Comparator.comparingLong(Message::getEmissionDate));
         for (Message m : sorted) {

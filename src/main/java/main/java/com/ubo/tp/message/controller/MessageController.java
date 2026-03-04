@@ -5,6 +5,7 @@ import main.java.com.ubo.tp.message.core.selection.ISelectionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.AbstractMessageAppObject;
 import main.java.com.ubo.tp.message.datamodel.Message;
+import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
 
 import java.util.Set;
 
@@ -12,10 +13,17 @@ public class MessageController implements ISelectionObserver {
     private DataManager mDataManager;
     private Session session;
     private AbstractMessageAppObject selectedObject;
+    private MessageListView messageListView;
 
     public MessageController(DataManager mDataManager, Session session) {
         this.mDataManager = mDataManager;
         this.session = session;
+        this.messageListView = new MessageListView();
+    }
+
+    public void refreshMessages() {
+        Set<Message> messages = getCurrentMessages();
+        messageListView.refreshMessage(messages);
     }
 
     public void sendMessage(String text){
@@ -33,6 +41,7 @@ public class MessageController implements ISelectionObserver {
     @Override
     public void notify(AbstractMessageAppObject selectedObject) {
         this.setSelectedObject(selectedObject);
+        refreshMessages();
     }
 
     public Set<Message> getCurrentMessages(){
@@ -43,5 +52,9 @@ public class MessageController implements ISelectionObserver {
             return new java.util.HashSet<>();
         }
         return messages;
+    }
+
+    public MessageListView getMessageListView() {
+        return messageListView;
     }
 }
