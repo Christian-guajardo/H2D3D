@@ -78,10 +78,6 @@ public class ChannelListView extends JPanel {
     }
 
     public void clear() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(this::clear);
-            return;
-        }
         listPanel.removeAll();
         listPanel.revalidate();
         listPanel.repaint();

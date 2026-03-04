@@ -1,15 +1,18 @@
 package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.core.DataManager;
+import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.ISelectionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.AbstractMessageAppObject;
+import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
+import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
 
 import java.util.Set;
 
-public class MessageController implements ISelectionObserver {
+public class MessageController implements ISelectionObserver, IDatabaseObserver {
     private DataManager mDataManager;
     private Session session;
     private AbstractMessageAppObject selectedObject;
@@ -56,5 +59,52 @@ public class MessageController implements ISelectionObserver {
 
     public MessageListView getMessageListView() {
         return messageListView;
+    }
+
+    @Override
+    public void notifyMessageAdded(Message addedMessage) {
+        this.mDataManager.sendMessage(addedMessage);
+        this.refreshMessages();
+    }
+
+    @Override
+    public void notifyMessageDeleted(Message deletedMessage) {
+        this.refreshMessages();
+    }
+
+    @Override
+    public void notifyMessageModified(Message modifiedMessage) {
+        this.mDataManager.sendMessage(modifiedMessage);
+        this.refreshMessages();
+    }
+
+    @Override
+    public void notifyUserAdded(User addedUser) {
+
+    }
+
+    @Override
+    public void notifyUserDeleted(User deletedUser) {
+
+    }
+
+    @Override
+    public void notifyUserModified(User modifiedUser) {
+
+    }
+
+    @Override
+    public void notifyChannelAdded(Channel addedChannel) {
+
+    }
+
+    @Override
+    public void notifyChannelDeleted(Channel deletedChannel) {
+
+    }
+
+    @Override
+    public void notifyChannelModified(Channel modifiedChannel) {
+
     }
 }

@@ -45,11 +45,7 @@ public class MessageListView extends JPanel {
     }
 
     /** Ajoute un seul message en bas. */
-    public void addMessage(Message message) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> addMessage(message));
-            return;
-        }
+    public void addSingleMessageView(Message message) {
         listPanel.add(new MessageComponent(message));
         listPanel.revalidate();
         listPanel.repaint();
@@ -57,10 +53,6 @@ public class MessageListView extends JPanel {
     }
 
     public void clear() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(this::clear);
-            return;
-        }
         listPanel.removeAll();
         listPanel.revalidate();
         listPanel.repaint();
