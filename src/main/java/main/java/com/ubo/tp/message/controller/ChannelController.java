@@ -19,9 +19,14 @@ public class ChannelController {
     public ChannelController(DataManager dataManager, Selection selection) {
         this.dataManager = dataManager;
         this.selection = selection;
+        this.channelListView = new ChannelListView();
     }
 
     public void changeCurrentSelection(Channel channel) {
         selection.changeSelection(channel);
+    }
+
+    private void attachListeners() {
+        channelListView.addChannelSelectionListener(channel -> changeCurrentSelection(channel));
     }
 }

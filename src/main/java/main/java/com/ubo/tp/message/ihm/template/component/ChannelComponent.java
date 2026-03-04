@@ -4,15 +4,16 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.function.Consumer;
 
 /**
  * Composant graphique représentant un canal.
  * Expose addSelectListener() — pas de référence vers le contrôleur.
  */
 public class ChannelComponent extends JPanel {
-
-    private final JButton selectButton;
+    private Consumer<Channel> onSelect;
     private final Channel channel;
+
 
     public Channel getChannel() {
         return channel;
@@ -53,14 +54,10 @@ public class ChannelComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 insets, 0, 0));
 
-        selectButton = new JButton();
-        selectButton.setVisible(false);
-        add(selectButton);
-
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                selectButton.doClick();
+                if (onSelect != null) onSelect.accept(channel);
             }
             @Override public void mouseEntered(java.awt.event.MouseEvent e) {
                 setBackground(new Color(0x505050));
@@ -72,7 +69,7 @@ public class ChannelComponent extends JPanel {
     }
 
     /** Le contrôleur s'abonne ici. */
-    public void addSelectListener(ActionListener listener) {
-        selectButton.addActionListener(listener);
+    public void addSelectListener(Consumer<Channel> listener) {
+        this.onSelect = listener;
     }
 }

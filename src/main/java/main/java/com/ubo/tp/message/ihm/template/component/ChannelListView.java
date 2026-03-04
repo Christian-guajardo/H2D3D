@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Composant graphique de la liste des canaux.
@@ -83,16 +84,6 @@ public class ChannelListView extends JPanel {
     }
 
     /**
-     * Le contrôleur s'abonne à la sélection d'un canal.
-     * La commande de l'ActionEvent contient l'UUID du canal.
-     */
-    public void addChannelSelectListener(ActionListener listener) {
-        for (ChannelComponent comp : channelComponents) {
-            comp.addSelectListener();
-        }
-    }
-
-    /**
      * Le contrôleur s'abonne à la création d'un nouveau canal.
      */
     public void addCreateChannelListener(ActionListener listener) {
@@ -107,5 +98,11 @@ public class ChannelListView extends JPanel {
         listPanel.removeAll();
         listPanel.revalidate();
         listPanel.repaint();
+    }
+
+    public void addChannelSelectionListener(Consumer<Channel> listener) {
+        for (ChannelComponent comp : channelComponents) {
+            comp.addSelectListener(listener);
+        }
     }
 }
