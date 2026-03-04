@@ -20,6 +20,7 @@ public class ChannelController {
         this.dataManager = dataManager;
         this.selection = selection;
         this.channelListView = new ChannelListView();
+        this.attachListeners();
     }
 
     public void changeCurrentSelection(Channel channel) {
