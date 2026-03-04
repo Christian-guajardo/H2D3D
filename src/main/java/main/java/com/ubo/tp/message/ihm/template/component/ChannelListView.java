@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
+import main.java.com.ubo.tp.message.controller.ChannelController;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import javax.swing.*;
 import java.awt.*;
@@ -16,9 +17,11 @@ public class ChannelListView extends JPanel {
     private final JPanel listPanel;
     private final JButton createButton;
     private final List<ActionListener> selectListeners = new ArrayList<>();
+    private final ChannelController channelController;
 
-    public ChannelListView() {
+    public ChannelListView(ChannelController channelController) {
         super(new BorderLayout());
+        this.channelController = channelController;
         setBackground(new Color(0x2C2C2C));
 
         // En-tête
@@ -78,10 +81,7 @@ public class ChannelListView extends JPanel {
     private void addChannelRow(Channel channel) {
         ChannelComponent comp = new ChannelComponent(channel);
         for (ActionListener l : selectListeners) {
-            comp.addSelectListener(e -> l.actionPerformed(
-                    new java.awt.event.ActionEvent(channel,
-                            java.awt.event.ActionEvent.ACTION_PERFORMED,
-                            channel.getUuid().toString())));
+            comp.addSelectListener(e -> this.channelController.changeCurrentSelection(comp.getChannel()));
         }
         listPanel.add(comp);
     }

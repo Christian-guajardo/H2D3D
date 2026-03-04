@@ -12,9 +12,15 @@ import java.awt.event.ActionListener;
 public class ChannelComponent extends JPanel {
 
     private final JButton selectButton;
+    private final Channel channel;
+
+    public Channel getChannel() {
+        return channel;
+    }
 
     public ChannelComponent(Channel channel) {
         super(new GridBagLayout());
+        this.channel = channel;
         setBackground(new Color(0x3A3A3A));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x555555)));
 

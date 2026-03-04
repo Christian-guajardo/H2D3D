@@ -12,9 +12,15 @@ import java.awt.event.ActionListener;
 public class UserComponent extends JPanel {
 
     private final JButton selectButton;
+    private final User user;
+
+    public User getUser() {
+        return user;
+    }
 
     public UserComponent(User user) {
         super(new GridBagLayout());
+        this.user = user;
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xEEEEEE)));
 

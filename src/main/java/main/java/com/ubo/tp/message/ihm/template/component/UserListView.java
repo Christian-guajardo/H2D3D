@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
+import main.java.com.ubo.tp.message.controller.UserController;
 import main.java.com.ubo.tp.message.datamodel.User;
 import javax.swing.*;
 import java.awt.*;
@@ -15,9 +16,11 @@ public class UserListView extends JPanel {
 
     private final JPanel listPanel;
     private final List<ActionListener> selectListeners = new ArrayList<>();
+    private final UserController userController;
 
-    public UserListView() {
+    public UserListView(UserController userController) {
         super(new BorderLayout());
+        this.userController = userController;
 
         JLabel title = new JLabel("Utilisateurs", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 13f));
@@ -61,12 +64,9 @@ public class UserListView extends JPanel {
 
     private void addUserRow(User user) {
         UserComponent comp = new UserComponent(user);
-        // On propage tous les listeners enregistrés
+
         for (ActionListener l : selectListeners) {
-            comp.addSelectListener(e -> l.actionPerformed(
-                    new java.awt.event.ActionEvent(user,
-                            java.awt.event.ActionEvent.ACTION_PERFORMED,
-                            user.getUuid().toString())));
+            comp.addSelectListener(e -> this.userController.changeCurrentSelection(comp.getUser()));
         }
         listPanel.add(comp);
     }
