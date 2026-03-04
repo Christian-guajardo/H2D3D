@@ -3,7 +3,7 @@ package main.java.com.ubo.tp.message.ihm.template.component;
 import main.java.com.ubo.tp.message.datamodel.User;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.util.function.Consumer;
 
 /**
  * Composant graphique représentant un utilisateur dans une liste.
@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
  */
 public class UserComponent extends JPanel {
 
-    private final JButton selectButton;
+    private Consumer<User> onSelect;
     private final User user;
 
     public User getUser() {
@@ -63,16 +63,10 @@ public class UserComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 insets, 0, 0));
 
-        // Bouton de sélection (invisible — déclenché par clic sur la ligne)
-        selectButton = new JButton();
-        selectButton.setVisible(false);
-        add(selectButton);
-
-        // Clic sur toute la ligne déclenche le bouton
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                selectButton.doClick();
+                if (onSelect != null) onSelect.accept(user);
             }
             @Override public void mouseEntered(java.awt.event.MouseEvent e) {
                 setBackground(new Color(0xF5F5F5));
@@ -86,8 +80,8 @@ public class UserComponent extends JPanel {
     /**
      * Le contrôleur s'abonne ici. La vue ne connaît pas le contrôleur.
      */
-    public void addSelectListener(ActionListener listener) {
-        selectButton.addActionListener(listener);
+    public void addSelectListener(Consumer<User> listener) {
+        this.onSelect = listener;
     }
 
     private String getInitials(User user) {

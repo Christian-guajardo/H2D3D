@@ -1,10 +1,9 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
-import main.java.com.ubo.tp.message.controller.UserController;
 import main.java.com.ubo.tp.message.datamodel.User;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,12 +14,11 @@ import java.util.List;
 public class UserListView extends JPanel {
 
     private final JPanel listPanel;
-    private final List<ActionListener> selectListeners = new ArrayList<>();
-    private final UserController userController;
+    private final List<UserComponent> userComponents = new ArrayList<>();
 
-    public UserListView(UserController userController) {
+    public UserListView() {
         super(new BorderLayout());
-        this.userController = userController;
+
 
         JLabel title = new JLabel("Utilisateurs", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 13f));
@@ -64,10 +62,7 @@ public class UserListView extends JPanel {
 
     private void addUserRow(User user) {
         UserComponent comp = new UserComponent(user);
-
-        for (ActionListener l : selectListeners) {
-            comp.addSelectListener(e -> this.userController.changeCurrentSelection(comp.getUser()));
-        }
+        userComponents.add(comp);
         listPanel.add(comp);
     }
 
@@ -75,8 +70,10 @@ public class UserListView extends JPanel {
      * Le contrôleur enregistre ici son handler de sélection d'utilisateur.
      * La commande de l'événement contient l'UUID de l'utilisateur cliqué.
      */
-    public void addUserSelectListener(ActionListener listener) {
-        selectListeners.add(listener);
+    public void addUserSelectListener(Consumer<User> listener) {
+        for (UserComponent userComponent : userComponents) {
+            userComponent.addSelectListener(listener);
+        }
     }
 
     public void clear() {
