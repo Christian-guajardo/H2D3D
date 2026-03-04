@@ -8,10 +8,6 @@ import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Composant graphique de la liste des utilisateurs.
- * Expose addUserSelectListener() — le contrôleur s'y abonne sans couplage retour.
- */
 public class UserListView extends JPanel {
 
     private final JPanel listPanel;
@@ -19,7 +15,6 @@ public class UserListView extends JPanel {
 
     public UserListView() {
         super(new BorderLayout());
-
 
         JLabel title = new JLabel("Utilisateurs", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 13f));
@@ -42,6 +37,7 @@ public class UserListView extends JPanel {
 
     public void refreshUsers(Set<User> users) {
         listPanel.removeAll();
+        userComponents.clear(); // FIX: vider la liste avant de la reconstruire
         for (User u : users) addUserRow(u);
         listPanel.revalidate();
         listPanel.repaint();
@@ -49,14 +45,12 @@ public class UserListView extends JPanel {
 
     private void addUserRow(User user) {
         UserComponent comp = new UserComponent(user);
+        // FIX: contraindre la hauteur pour que le composant ne s'étire pas
+        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
         userComponents.add(comp);
         listPanel.add(comp);
     }
 
-    /**
-     * Le contrôleur enregistre ici son handler de sélection d'utilisateur.
-     * La commande de l'événement contient l'UUID de l'utilisateur cliqué.
-     */
     public void addUserSelectListener(Consumer<User> listener) {
         for (UserComponent userComponent : userComponents) {
             userComponent.addSelectListener(listener);
@@ -69,6 +63,7 @@ public class UserListView extends JPanel {
             return;
         }
         listPanel.removeAll();
+        userComponents.clear();
         listPanel.revalidate();
         listPanel.repaint();
     }

@@ -1,6 +1,5 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
-import main.java.com.ubo.tp.message.controller.ChannelController;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import javax.swing.*;
 import java.awt.*;
@@ -10,10 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-/**
- * Composant graphique de la liste des canaux.
- * Expose addChannelSelectListener() et addCreateChannelListener().
- */
 public class ChannelListView extends JPanel {
 
     private final JPanel listPanel;
@@ -24,7 +19,6 @@ public class ChannelListView extends JPanel {
         super(new BorderLayout());
         setBackground(new Color(0x2C2C2C));
 
-        // En-tête
         JPanel header = new JPanel(new BorderLayout(5, 0));
         header.setBackground(new Color(0x2C2C2C));
         header.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
@@ -59,6 +53,7 @@ public class ChannelListView extends JPanel {
 
     public void refreshChannel(Set<Channel> channels) {
         listPanel.removeAll();
+        channelComponents.clear(); // FIX: vider la liste avant de la reconstruire
         for (Channel c : channels) addChannelRow(c);
         listPanel.revalidate();
         listPanel.repaint();
@@ -66,19 +61,19 @@ public class ChannelListView extends JPanel {
 
     private void addChannelRow(Channel channel) {
         ChannelComponent comp = new ChannelComponent(channel);
+        // FIX: contraindre la hauteur
+        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
         channelComponents.add(comp);
         listPanel.add(comp);
     }
 
-    /**
-     * Le contrôleur s'abonne à la création d'un nouveau canal.
-     */
     public void addCreateChannelListener(ActionListener listener) {
         createButton.addActionListener(listener);
     }
 
     public void clear() {
         listPanel.removeAll();
+        channelComponents.clear();
         listPanel.revalidate();
         listPanel.repaint();
     }

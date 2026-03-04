@@ -2,12 +2,8 @@ package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.selection.Selection;
-import main.java.com.ubo.tp.message.core.session.ISession;
-import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
-import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
-import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
 
 public class MessageAppMainController {
     private final DataManager dataManager;
@@ -22,6 +18,7 @@ public class MessageAppMainController {
     private final RegisterController registerController;
     private final LoginController loginController;
     private final MessageInputController messageInputController;
+
     public MessageAppMainController(DataManager dataManager, MessageAppMainView mainView) {
         this.dataManager = dataManager;
         this.mainView = mainView;
@@ -33,12 +30,18 @@ public class MessageAppMainController {
         this.channelController = new ChannelController(dataManager, selection);
         this.userController = new UserController(dataManager, selection);
         this.messageInputController = new MessageInputController(dataManager, session);
-        this.connectController = new ConnectController(messageController,messageInputController, channelController, userController);
-        this.navigationController = new NavigationController(mainView,dataManager,loginController,registerController,connectController);
+        this.connectController = new ConnectController(messageController, messageInputController, channelController, userController);
+        this.navigationController = new NavigationController(mainView, dataManager, loginController, registerController, connectController);
 
+        // FIX: enregistrer userController et channelController comme observateurs
+        // pour recevoir les notifications de la base de données
+        dataManager.addObserver(userController);
+        dataManager.addObserver(channelController);
+        dataManager.addObserver(messageController);
 
         session.addObserver(this.navigationController);
         selection.addObserver(this.messageController);
+        selection.addObserver(this.messageInputController);
     }
 
     public void init() {
@@ -47,8 +50,5 @@ public class MessageAppMainController {
 
     private void handleLogout() {
         session.disconnect();
-
     }
-
-
 }
