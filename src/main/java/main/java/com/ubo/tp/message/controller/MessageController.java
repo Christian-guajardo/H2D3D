@@ -62,7 +62,8 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     private Set<Message> getMessagesForUser() {
         Set<Message> messages = new HashSet<>();
         for (Message message : mDataManager.getMessages()) {
-            if (message.getRecipient().equals(selectedObject.getUuid()) || message.getSender().equals(session.getConnectedUser().getUuid())) {
+            if (message.getRecipient().equals(selectedObject.getUuid()) && message.getSender().equals(session.getConnectedUser())
+            ||  message.getRecipient().equals(session.getConnectedUser().getUuid()) && message.getSender().equals((User) selectedObject)) {
                 messages.add(message);
             }
         }
