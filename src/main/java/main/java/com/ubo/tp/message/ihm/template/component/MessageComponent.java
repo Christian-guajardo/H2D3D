@@ -28,7 +28,7 @@ public class MessageComponent extends JPanel {
         header.setOpaque(true);
         header.setBackground(Color.WHITE);
 
-        JLabel senderLabel = new JLabel("@" + message.getSender().getUserTag());
+        JLabel senderLabel = new JLabel(message.getSender().getName());
         senderLabel.setFont(senderLabel.getFont().deriveFont(Font.BOLD, 12f));
         senderLabel.setForeground(new Color(0x2F80ED));
 
