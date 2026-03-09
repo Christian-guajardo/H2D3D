@@ -32,7 +32,7 @@ public class ChannelController implements IDatabaseObserver {
             selection.changeSelection(channel);
             channelListView.setSelectedChannel(channel);
         });
-        this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.channelListView.refreshChannel(getFilteredChannels());
         this.attachListeners();
     }
 
