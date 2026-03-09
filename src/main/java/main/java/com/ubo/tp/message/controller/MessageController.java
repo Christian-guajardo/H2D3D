@@ -61,6 +61,9 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     private Set<Message> getMessagesForUser() {
         Set<Message> messages = new HashSet<>();
+        if (session.getConnectedUser() == null) {
+            return messages;
+        }
         for (Message message : mDataManager.getMessages()) {
             if (message.getRecipient().equals(selectedObject.getUuid()) && message.getSender().equals(session.getConnectedUser())
             ||  message.getRecipient().equals(session.getConnectedUser().getUuid()) && message.getSender().equals((User) selectedObject)) {
@@ -108,6 +111,12 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
+        Set<Message> messagesToDelete = new HashSet<>();
+        for (Message message : mDataManager.getMessages()) {
+            if (message.getSender().equals(deletedUser) || message.getRecipient().equals(deletedUser.getUuid())) {
+                messagesToDelete.add(message);
+            }
+        }
         this.refreshMessages();
 
     }
