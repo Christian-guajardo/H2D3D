@@ -1,0 +1,41 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Le workflow se déclenchera pour les tags commençant par 'v' (ex: v1.0.0, v2.1)
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    # Permission indispensable pour que le token GitHub puisse créer la release
+    permissions:
+      contents: write 
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # Distribution Java (vous pouvez mettre 'zulu', 'corretto', etc.)
+          java-version: '17'      # Modifiez cette version selon les besoins de votre projet
+
+      - name: Rendre le wrapper Gradle exécutable
+        run: chmod +x gradlew
+
+      - name: Lancer la tâche Gradle JAR
+        run: ./gradlew jar
+
+      - name: Créer la Release GitHub et uploader le JAR
+        uses: softprops/action-gh-release@v2
+        with:
+          # Le chemin par défaut où Gradle génère les JARs. 
+          # Modifiez-le si votre projet a une structure différente (ex: multi-modules).
+          files: build/libs/*.jar 
+          generate_release_notes: true # Optionnel : génère automatiquement des notes de version basées sur les PRs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
