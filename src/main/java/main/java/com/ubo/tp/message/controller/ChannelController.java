@@ -37,10 +37,8 @@ public class ChannelController implements IDatabaseObserver {
     }
 
     private void attachListeners() {
-        channelListView.addChannelSelectionListener(channel -> selection.changeSelection(channel));
-        channelListView.addCreateChannelListener(createChannel -> {
-            mDataManager.sendChannel(new Channel(this.session.getConnectedUser(), "nameChannel"));
-        });
+        channelListView.addChannelSelectionListener(selection::changeSelection);
+        channelListView.addCreateChannelListener(e ->  mDataManager.sendChannel(new Channel(this.session.getConnectedUser(), "nameChannel")));
     }
 
     public Set<Channel> getFilteredChannels() {

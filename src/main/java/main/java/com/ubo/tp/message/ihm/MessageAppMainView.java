@@ -16,6 +16,7 @@ public class MessageAppMainView {
     private JMenuItem registerMenuItem;
     private JMenuItem loginMenuItem;
     private JMenuItem logoutMenuItem;
+    private JMenuItem editProfileMenuItem;
     private JMenuItem chooseExchangeMenuItem;
 
     private JPanel contentPanel;
@@ -73,6 +74,8 @@ public class MessageAppMainView {
 
         // Menu Compte (visible quand connecté)
         accountMenu = new JMenu("Compte");
+        editProfileMenuItem = new JMenuItem("Modifier profil");
+        accountMenu.add(editProfileMenuItem);
         logoutMenuItem = new JMenuItem("Déconnexion");
         accountMenu.add(logoutMenuItem);
 
@@ -205,5 +208,25 @@ public class MessageAppMainView {
 
     public void addChooseExchangeMenuItem(ActionListener listener) {
         chooseExchangeMenuItem.addActionListener(listener);
+    }
+
+    public JMenuItem getEditProfileMenuItem() {
+        return editProfileMenuItem;
+    }
+
+    public void addEditProfileAction(ActionListener listener) {
+        editProfileMenuItem.addActionListener(listener);
+    }
+
+    /**
+     * Affiche un composant dans le contentPane en état connecté
+     * (remplace le contenu central tout en gardant le menu Compte).
+     */
+    public void showConnectedContent(JComponent comp) {
+        mainFrame.getContentPane().removeAll();
+        mainFrame.getContentPane().setLayout(new BorderLayout());
+        mainFrame.getContentPane().add(comp, BorderLayout.CENTER);
+        mainFrame.revalidate();
+        mainFrame.repaint();
     }
 }

@@ -18,17 +18,20 @@ public class NavigationController implements ISessionObserver {
     private final LoginController loginController;
     private final RegisterController registerController;
     private final ConnectController connectController;
+    private final ProfileController profileController;
 
     public NavigationController(MessageAppMainView mainView,
                                 DataManager dataManager,
                                 LoginController loginController,
                                 RegisterController registerController,
-                                ConnectController connectController) {
+                                ConnectController connectController,
+                                ProfileController profileController) {
         this.mainView = mainView;
         this.dataManager = dataManager;
         this.loginController = loginController;
         this.registerController = registerController;
         this.connectController = connectController;
+        this.profileController = profileController;
 
         attachListeners();
     }
@@ -37,6 +40,7 @@ public class NavigationController implements ISessionObserver {
         mainView.addRegisterAction(e -> showRegisterView());
         mainView.addLoginMenuItem(e -> showLoginView());
         mainView.addChooseExchangeMenuItem(e -> handleChooseExchangeDirectory());
+        mainView.addEditProfileAction(e -> showProfileView());
     }
 
     private void showRegisterView() {
@@ -60,15 +64,23 @@ public class NavigationController implements ISessionObserver {
         }
     }
 
-    @Override
-    public void notifyLogin(User connectedUser) {
+    private void showProfileView() {
+        ProfileView profileView = new ProfileView(profileController, this::showConnectView);
+        mainView.showConnectedContent(profileView);
+    }
 
+    private void showConnectView() {
         MessageInputView messageInputView = new MessageInputView(connectController.getMessageInputController());
         ConnectView connectView = new ConnectView(connectController.getUserController().getUserListView(),
                 connectController.getChannelController().getChannelListView(),
                 connectController.getMessageController().getMessageListView(),
                 messageInputView, connectController);
         mainView.showConnectedState(connectView);
+    }
+
+    @Override
+    public void notifyLogin(User connectedUser) {
+        showConnectView();
     }
 
     @Override
