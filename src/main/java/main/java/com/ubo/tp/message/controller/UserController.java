@@ -4,11 +4,13 @@ import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.Selection;
+import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.UserListView;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,14 +18,16 @@ public class UserController implements IDatabaseObserver {
     private final DataManager dataManager;
     private final Selection selection;
     private UserListView userListView;
+    private Session session;
 
     public UserListView getUserListView() {
         return userListView;
     }
 
-    public UserController(DataManager dataManager, Selection selection) {
+    public UserController(DataManager dataManager, Selection selection, Session session) {
         this.dataManager = dataManager;
         this.selection = selection;
+        this.session = session;
         this.userListView = new UserListView();
         this.userListView.addUserSelectListener(user -> {
             selection.changeSelection(user);
@@ -36,7 +40,8 @@ public class UserController implements IDatabaseObserver {
     // FIX: méthode utilitaire pour récupérer les users sans UNKNOWN_USER
     private Set<User> getFilteredUsers() {
         return dataManager.getUsers().stream()
-                .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
+                .filter(user -> !user.getUuid().equals(Constants.UNKNONWN_USER_UUID))
+                .filter(user -> !user.getUuid().equals(session.getConnectedUser() != null ? session.getConnectedUser().getUuid() : ""))
                 .collect(Collectors.toSet());
     }
 

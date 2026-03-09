@@ -27,8 +27,8 @@ public class MessageAppMainController {
         this.loginController = new LoginController(dataManager, session);
         this.registerController = new RegisterController(dataManager);
         this.messageController = new MessageController(dataManager, session);
-        this.channelController = new ChannelController(dataManager, selection);
-        this.userController = new UserController(dataManager, selection);
+        this.channelController = new ChannelController(dataManager, selection, session);
+        this.userController = new UserController(dataManager, selection, session);
         this.messageInputController = new MessageInputController(dataManager, session);
         this.connectController = new ConnectController(messageController, messageInputController, channelController, userController);
         this.navigationController = new NavigationController(mainView, dataManager, loginController, registerController, connectController);

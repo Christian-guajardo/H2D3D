@@ -3,6 +3,7 @@ package main.java.com.ubo.tp.message.controller;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.Selection;
+import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
@@ -13,14 +14,16 @@ public class ChannelController implements IDatabaseObserver {
     private final DataManager mDataManager;
     private final Selection selection;
     private ChannelListView channelListView;
+    private Session session;
 
     public ChannelListView getChannelListView() {
         return channelListView;
     }
 
-    public ChannelController(DataManager dataManager, Selection selection) {
+    public ChannelController(DataManager dataManager, Selection selection, Session session) {
         this.mDataManager = dataManager;
         this.selection = selection;
+        this.session = session;
         this.channelListView = new ChannelListView();
         this.channelListView.addChannelSelectionListener(channel -> {
             selection.changeSelection(channel);
@@ -32,6 +35,9 @@ public class ChannelController implements IDatabaseObserver {
 
     private void attachListeners() {
         channelListView.addChannelSelectionListener(channel -> selection.changeSelection(channel));
+        channelListView.addCreateChannelListener(createChannel -> {
+            mDataManager.sendChannel(new Channel(this.session.getConnectedUser(), "nameChannel"));
+        });
     }
 
     @Override
