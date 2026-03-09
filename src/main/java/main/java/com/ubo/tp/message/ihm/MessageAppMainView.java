@@ -2,7 +2,7 @@ package main.java.com.ubo.tp.message.ihm;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 
 import main.java.com.ubo.tp.message.ihm.template.ConnectView;
@@ -20,12 +20,35 @@ public class MessageAppMainView {
 
     private JPanel contentPanel;
 
+    // Action déclenchée quand l'utilisateur ferme la fenêtre (croix)
+    private ActionListener windowClosingListener;
+
     public MessageAppMainView() {
         mainFrame = new JFrame("Message App");
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        // Intercepter la fermeture par la croix et déléguer à windowClosingListener
+        mainFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (windowClosingListener != null) {
+                    windowClosingListener.actionPerformed(new ActionEvent(mainFrame, ActionEvent.ACTION_PERFORMED, "windowClosing"));
+                } else {
+                    // comportement par défaut si aucun listener enregistré
+                    System.exit(0);
+                }
+            }
+        });
+
         mainFrame.setSize(800, 600);
 
         createMenu();
+    }
+
+    // Permet au contrôleur d'enregistrer une action à exécuter à la fermeture (ex: disconnect)
+    public void addWindowClosingAction(ActionListener listener) {
+        this.windowClosingListener = listener;
     }
 
     private void createMenu() {

@@ -47,12 +47,36 @@ public class MessageAppMainController {
 
     public void init() {
         mainView.getLogoutMenuItem().addActionListener(e -> handleLogout());
+
+        // Quand l'utilisateur ferme la fenêtre (croix), on souhaite déconnecter et
+        // réafficher l'état déconnecté avant de quitter.
+        mainView.addWindowClosingAction(evt -> {
+            try {
+                handleLogout();
+            } catch (Exception ex) {
+                // ne pas empêcher la fermeture si la déconnexion échoue
+                ex.printStackTrace();
+            }
+            // Afficher l'état déconnecté (sécurisé même si déjà déconnecté)
+            try {
+                mainView.showDisconnectedState();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            // Quitter l'application
+            System.exit(0);
+        });
     }
 
     private void handleLogout() {
         User u = session.getConnectedUser();
-        u.setOnline(false);
-        session.disconnect();
-        dataManager.sendUser(u);
+        if (u != null) {
+            u.setOnline(false);
+            session.disconnect();
+            dataManager.sendUser(u);
+        } else {
+            // même si aucun utilisateur connecté, s'assurer que la session est fermée
+            session.disconnect();
+        }
     }
 }

@@ -9,6 +9,9 @@ import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.ChannelListView;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 
 public class ChannelController implements IDatabaseObserver {
     private final DataManager mDataManager;
@@ -38,6 +41,12 @@ public class ChannelController implements IDatabaseObserver {
         channelListView.addCreateChannelListener(createChannel -> {
             mDataManager.sendChannel(new Channel(this.session.getConnectedUser(), "nameChannel"));
         });
+    }
+
+    public Set<Channel> getFilteredChannels() {
+        return mDataManager.getChannels().stream()
+                .filter(channel -> channel.getUsers().contains(session.getConnectedUser()) || channel.getCreator().equals(session.getConnectedUser()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -72,19 +81,19 @@ public class ChannelController implements IDatabaseObserver {
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
-        this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.channelListView.refreshChannel(this.getFilteredChannels());
         this.attachListeners();
     }
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
-        this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.channelListView.refreshChannel(this.getFilteredChannels());
         this.attachListeners();
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
-        this.channelListView.refreshChannel(mDataManager.getChannels());
+        this.channelListView.refreshChannel(this.getFilteredChannels());
         this.attachListeners();
     }
 }
