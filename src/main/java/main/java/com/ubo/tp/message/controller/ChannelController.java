@@ -28,72 +28,62 @@ public class ChannelController implements IDatabaseObserver {
         this.selection = selection;
         this.session = session;
         this.channelListView = new ChannelListView();
-        this.channelListView.addChannelSelectionListener(channel -> {
+
+        // FIX: le listener de sélection est enregistré UNE SEULE FOIS sur la vue,
+        // qui le propagera à chaque nouveau ChannelComponent lors du refresh.
+        this.channelListView.setOnChannelSelected(channel -> {
             selection.changeSelection(channel);
             channelListView.setSelectedChannel(channel);
         });
-        this.channelListView.refreshChannel(getFilteredChannels());
-        this.attachListeners();
-    }
 
-    private void attachListeners() {
-        channelListView.addChannelSelectionListener(channel -> selection.changeSelection(channel));
-        channelListView.addCreateChannelListener(createChannel -> {
-            mDataManager.sendChannel(new Channel(this.session.getConnectedUser(), "nameChannel"));
-        });
+        // FIX: le listener de création est enregistré UNE SEULE FOIS ici.
+        this.channelListView.addCreateChannelListener(e ->
+                mDataManager.sendChannel(new Channel(session.getConnectedUser(), "nameChannel"))
+        );
+
+        this.channelListView.refreshChannel(getFilteredChannels());
     }
 
     public Set<Channel> getFilteredChannels() {
         return mDataManager.getChannels().stream()
-                .filter(channel -> channel.getUsers().contains(session.getConnectedUser()) || channel.getCreator().equals(session.getConnectedUser()) || channel.getUsers().isEmpty())
+                .filter(channel ->
+                        channel.getUsers().contains(session.getConnectedUser())
+                                || channel.getCreator().equals(session.getConnectedUser())
+                                || channel.getUsers().isEmpty())
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public void notifyMessageAdded(Message addedMessage) {
-
-    }
+    public void notifyMessageAdded(Message addedMessage) {}
 
     @Override
-    public void notifyMessageDeleted(Message deletedMessage) {
-
-    }
+    public void notifyMessageDeleted(Message deletedMessage) {}
 
     @Override
-    public void notifyMessageModified(Message modifiedMessage) {
-
-    }
+    public void notifyMessageModified(Message modifiedMessage) {}
 
     @Override
-    public void notifyUserAdded(User addedUser) {
-
-    }
+    public void notifyUserAdded(User addedUser) {}
 
     @Override
-    public void notifyUserDeleted(User deletedUser) {
-
-    }
+    public void notifyUserDeleted(User deletedUser) {}
 
     @Override
-    public void notifyUserModified(User modifiedUser) {
-
-    }
+    public void notifyUserModified(User modifiedUser) {}
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
+        // FIX: refresh seul — pas d'attachListeners() ici
         this.channelListView.refreshChannel(this.getFilteredChannels());
-        this.attachListeners();
     }
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
         this.channelListView.refreshChannel(this.getFilteredChannels());
-        this.attachListeners();
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
         this.channelListView.refreshChannel(this.getFilteredChannels());
-        this.attachListeners();
     }
 }

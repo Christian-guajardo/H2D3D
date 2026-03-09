@@ -15,6 +15,9 @@ public class ChannelListView extends JPanel {
     private final JButton createButton;
     private final List<ChannelComponent> channelComponents = new ArrayList<>();
 
+    // FIX: stocker le listener de sélection pour l'appliquer aux nouveaux composants
+    private Consumer<Channel> onChannelSelected;
+
     public ChannelListView() {
         super(new BorderLayout());
         setOpaque(true);
@@ -57,9 +60,17 @@ public class ChannelListView extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
+    /**
+     * FIX: enregistre le listener de sélection UNE SEULE FOIS.
+     * Il sera automatiquement appliqué à chaque composant lors des refreshs.
+     */
+    public void setOnChannelSelected(Consumer<Channel> listener) {
+        this.onChannelSelected = listener;
+    }
+
     public void refreshChannel(Set<Channel> channels) {
         listPanel.removeAll();
-        channelComponents.clear(); // FIX: vider la liste avant de la reconstruire
+        channelComponents.clear();
         for (Channel c : channels) addChannelRow(c);
         listPanel.add(Box.createVerticalGlue());
         listPanel.revalidate();
@@ -68,8 +79,13 @@ public class ChannelListView extends JPanel {
 
     private void addChannelRow(Channel channel) {
         ChannelComponent comp = new ChannelComponent(channel);
-        // FIX: contraindre la hauteur
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
+
+        // FIX: appliquer le listener stocké à chaque nouveau composant
+        if (onChannelSelected != null) {
+            comp.addSelectListener(onChannelSelected);
+        }
+
         channelComponents.add(comp);
         listPanel.add(comp);
     }
@@ -92,7 +108,13 @@ public class ChannelListView extends JPanel {
         listPanel.repaint();
     }
 
+    /**
+     * @deprecated Utiliser setOnChannelSelected() à la place pour éviter
+     *             la duplication des listeners lors des refreshs.
+     */
+    @Deprecated
     public void addChannelSelectionListener(Consumer<Channel> listener) {
+        this.onChannelSelected = listener;
         for (ChannelComponent comp : channelComponents) {
             comp.addSelectListener(listener);
         }
