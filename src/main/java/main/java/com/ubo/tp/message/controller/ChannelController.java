@@ -45,7 +45,7 @@ public class ChannelController implements IDatabaseObserver {
 
     public Set<Channel> getFilteredChannels() {
         return mDataManager.getChannels().stream()
-                .filter(channel -> channel.getUsers().contains(session.getConnectedUser()) || channel.getCreator().equals(session.getConnectedUser()))
+                .filter(channel -> channel.getUsers().contains(session.getConnectedUser()) || channel.getCreator().equals(session.getConnectedUser()) || channel.getUsers().isEmpty())
                 .collect(Collectors.toSet());
     }
 
