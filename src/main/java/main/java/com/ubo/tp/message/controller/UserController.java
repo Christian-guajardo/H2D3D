@@ -63,19 +63,16 @@ public class UserController implements IDatabaseObserver {
         // FIX: ignorer l'utilisateur inconnu
         if (addedUser.getUuid().equals(Constants.UNKNONWN_USER_UUID)) return;
         this.userListView.refreshUsers(getFilteredUsers());
-        attachListener();
     }
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
         this.userListView.refreshUsers(getFilteredUsers());
-        attachListener();
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
         this.userListView.refreshUsers(getFilteredUsers());
-        attachListener();
     }
 
     @Override
