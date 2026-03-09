@@ -127,4 +127,7 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
 		return sb.toString();
 	}
 
+	public boolean isPrivate() {
+		return this.mPrivate;
+	}
 }
