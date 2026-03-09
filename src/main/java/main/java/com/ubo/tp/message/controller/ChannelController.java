@@ -42,6 +42,12 @@ public class ChannelController implements IDatabaseObserver {
         );
 
         this.channelListView.refreshChannel(getFilteredChannels());
+        this.attachListeners();
+    }
+
+    private void attachListeners() {
+        channelListView.addChannelSelectionListener(selection::changeSelection);
+        channelListView.addCreateChannelListener(e ->  mDataManager.sendChannel(new Channel(this.session.getConnectedUser(), "nameChannel")));
     }
 
     public Set<Channel> getFilteredChannels() {
@@ -54,22 +60,34 @@ public class ChannelController implements IDatabaseObserver {
     }
 
     @Override
-    public void notifyMessageAdded(Message addedMessage) {}
+    public void notifyMessageAdded(Message addedMessage) {
+
+    }
 
     @Override
-    public void notifyMessageDeleted(Message deletedMessage) {}
+    public void notifyMessageDeleted(Message deletedMessage) {
+
+    }
 
     @Override
-    public void notifyMessageModified(Message modifiedMessage) {}
+    public void notifyMessageModified(Message modifiedMessage) {
+
+    }
 
     @Override
-    public void notifyUserAdded(User addedUser) {}
+    public void notifyUserAdded(User addedUser) {
+
+    }
 
     @Override
-    public void notifyUserDeleted(User deletedUser) {}
+    public void notifyUserDeleted(User deletedUser) {
+
+    }
 
     @Override
-    public void notifyUserModified(User modifiedUser) {}
+    public void notifyUserModified(User modifiedUser) {
+
+    }
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {

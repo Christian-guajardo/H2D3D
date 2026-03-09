@@ -19,6 +19,7 @@ public class MessageAppMainController {
     private final RegisterController registerController;
     private final LoginController loginController;
     private final MessageInputController messageInputController;
+    private final ProfileController profileController;
 
     public MessageAppMainController(DataManager dataManager, MessageAppMainView mainView) {
         this.dataManager = dataManager;
@@ -31,8 +32,9 @@ public class MessageAppMainController {
         this.channelController = new ChannelController(dataManager, selection, session);
         this.userController = new UserController(dataManager, selection, session);
         this.messageInputController = new MessageInputController(dataManager, session);
+        this.profileController = new ProfileController(dataManager, session);
         this.connectController = new ConnectController(messageController, messageInputController, channelController, userController);
-        this.navigationController = new NavigationController(mainView, dataManager, loginController, registerController, connectController);
+        this.navigationController = new NavigationController(mainView, dataManager, loginController, registerController, connectController, profileController);
 
         // FIX: enregistrer userController et channelController comme observateurs
         // pour recevoir les notifications de la base de données
