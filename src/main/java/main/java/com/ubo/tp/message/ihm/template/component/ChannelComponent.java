@@ -56,7 +56,7 @@ public class ChannelComponent extends JPanel {
                 insets, 0, 0));
 
         // Créateur
-        JLabel creatorLabel = new JLabel("par @" + channel.getCreator().getUserTag());
+        JLabel creatorLabel = new JLabel(channel.getCreator().getName());
         creatorLabel.setFont(creatorLabel.getFont().deriveFont(Font.ITALIC, 10f));
         creatorLabel.setForeground(new Color(0x888888));
         creatorLabel.setOpaque(false);
