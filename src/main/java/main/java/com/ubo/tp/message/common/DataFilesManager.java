@@ -36,6 +36,9 @@ public class DataFilesManager {
 	 */
 	protected static final String PROPERTY_KEY_USER_PASSWORD = "This_is_not_the_password";
 
+
+	protected static final String PROPERTY_KEY_USER_ONLINE = "Online";
+
 	/**
 	 * Clé du fichier de propriété pour l'attribut name
 	 */
@@ -71,6 +74,8 @@ public class DataFilesManager {
 	 */
 	protected static final String PROPERTY_KEY_CHANNEL_USERS = "Users";
 
+	protected static final String PROPERTY_KEY_CHANNEL_ISPRIVATE = "IsPrivate";
+
 	/**
 	 * Séparateur pour les utilisateurs.
 	 */
@@ -81,10 +86,19 @@ public class DataFilesManager {
 	 */
 	protected String mDirectoryPath;
 
+	public static String encrypt(String data) {
+		return Base64.getEncoder().encodeToString(data.getBytes());
+	}
+
+	public static String decrypt(String encryptedData) {
+		byte[] decodedBytes = Base64.getDecoder().decode(encryptedData);
+		return new String(decodedBytes);
+	}
+
 	/**
 	 * Lecture du fichier de propriété pour un {@link User}
 	 *
-	 * @param userFileName
+	 * @param userFile
 	 */
 	public User readUser(File userFile) {
 		User user = null;
@@ -96,8 +110,10 @@ public class DataFilesManager {
 			String tag = properties.getProperty(PROPERTY_KEY_USER_TAG, "NoTag");
 			String password = decrypt(properties.getProperty(PROPERTY_KEY_USER_PASSWORD, "NoPassword"));
 			String name = properties.getProperty(PROPERTY_KEY_NAME, "NoName");
+			String onlineStr = properties.getProperty(PROPERTY_KEY_USER_ONLINE, "false");
+			boolean online = Boolean.parseBoolean(onlineStr);
 
-			user = new User(UUID.fromString(uuid), tag, password, name);
+			user = new User(UUID.fromString(uuid), tag, password, name, online);
 		}
 
 		return user;
@@ -118,6 +134,7 @@ public class DataFilesManager {
 		properties.setProperty(PROPERTY_KEY_USER_TAG, user.getUserTag());
 		properties.setProperty(PROPERTY_KEY_USER_PASSWORD, encrypt(user.getUserPassword()));
 		properties.setProperty(PROPERTY_KEY_NAME, user.getName());
+		properties.setProperty(PROPERTY_KEY_USER_ONLINE, String.valueOf(user.isOnline()));
 
 		PropertiesManager.writeProperties(properties, destFileName);
 	}
@@ -125,7 +142,7 @@ public class DataFilesManager {
 	/**
 	 * Génération d'un fichier pour un utilisateur ({@link User}).
 	 *
-	 * @param user Utilisateur à générer.
+	 * @param channel Utilisateur à générer.
 	 */
 	public void writeChannelFile(Channel channel) {
 		Properties properties = new Properties();
@@ -137,6 +154,7 @@ public class DataFilesManager {
 		properties.setProperty(PROPERTY_KEY_NAME, channel.getName());
 		properties.setProperty(PROPERTY_KEY_CHANNEL_CREATOR, channel.getCreator().getUuid().toString());
 		properties.setProperty(PROPERTY_KEY_CHANNEL_USERS, this.getUsersAsString(channel.getUsers()));
+		properties.setProperty(PROPERTY_KEY_CHANNEL_ISPRIVATE, String.valueOf(channel.isPrivate()));
 
 		PropertiesManager.writeProperties(properties, destFileName);
 	}
@@ -159,11 +177,12 @@ public class DataFilesManager {
 			String channelCreator = properties.getProperty(PROPERTY_KEY_CHANNEL_CREATOR,
 					Constants.UNKNONWN_USER_UUID.toString());
 			String channelUsers = properties.getProperty(PROPERTY_KEY_CHANNEL_USERS, "");
+			boolean channelPrivate = Boolean.parseBoolean(properties.getProperty(PROPERTY_KEY_CHANNEL_ISPRIVATE, "false"));
 
 			User creator = getUserFromUuid(channelCreator, userMap);
 			List<User> allUsers = this.getUsersFromString(channelUsers, userMap);
 
-			channel = new Channel(UUID.fromString(uuid), creator, channelName, allUsers);
+			channel = new Channel(UUID.fromString(uuid), creator, channelName, allUsers, channelPrivate);
 		}
 
 		return channel;
@@ -191,7 +210,7 @@ public class DataFilesManager {
 			String text = properties.getProperty(PROPERTY_KEY_MESSAGE_TEXT, "NoText");
 
 			User sender = getUserFromUuid(senderUuid, userMap);
-			long emissionDate = Long.valueOf(emissionDateStr);
+			long emissionDate = Long.parseLong(emissionDateStr);
 
 			message = new Message(UUID.fromString(uuid), sender, UUID.fromString(recipientUuid), emissionDate, text);
 		}
@@ -221,10 +240,10 @@ public class DataFilesManager {
 
 	/**
 	 * Récupération de l'utilisateur identifié.
-	 * 
+	 *
 	 * @param uuid
 	 * @param userMap
-	 * @return
+	 * @return L'utilisateur identifié ou l'utilisateur inconnu si aucun utilisateur ne
 	 */
 	protected User getUserFromUuid(String uuid, Map<UUID, User> userMap) {
 		// Récupération de l'utilisateur en fonction de l'UUID
@@ -258,27 +277,27 @@ public class DataFilesManager {
 	/**
 	 * Retourne la liste des identifiants des utilisateurs sour forme d'une chaine
 	 * de caractère.
-	 * 
+	 *
 	 * @param users
 	 */
 	protected String getUsersAsString(List<User> users) {
-		String usersAsString = "";
+		StringBuilder usersAsString = new StringBuilder();
 
 		Iterator<User> iterator = users.iterator();
 		while (iterator.hasNext()) {
-			usersAsString += iterator.next();
+			usersAsString.append(iterator.next().getUuid().toString());
 
 			if (iterator.hasNext()) {
-				usersAsString += USER_SEPARATOR;
+				usersAsString.append(USER_SEPARATOR);
 			}
 		}
 
-		return usersAsString;
+		return usersAsString.toString();
 	}
 
 	/**
 	 * Retourne la liste des utilisateurs depuis une chaine de caractère.
-	 * 
+	 *
 	 * @param users
 	 * @param userMap
 	 */
@@ -293,14 +312,5 @@ public class DataFilesManager {
 		}
 
 		return userList;
-	}
-
-	public static String encrypt(String data) {
-		return Base64.getEncoder().encodeToString(data.getBytes());
-	}
-
-	public static String decrypt(String encryptedData) {
-		byte[] decodedBytes = Base64.getDecoder().decode(encryptedData);
-		return new String(decodedBytes);
 	}
 }

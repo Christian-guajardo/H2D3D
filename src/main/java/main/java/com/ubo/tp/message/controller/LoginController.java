@@ -38,8 +38,9 @@ public class LoginController {
             if ((matchTag || matchName) && password.equals(u.getUserPassword())) {
                 u.setOnline(true);
                 try {
-                    mDataManager.sendUser(u);
                     session.connect(u);
+                    u.setOnline(true);
+                    mDataManager.sendUser(u);
                 } catch (RuntimeException ex) {
                     System.err.println("Erreur lors de la mise à jour de l'utilisateur : " + ex.getMessage());
                 }

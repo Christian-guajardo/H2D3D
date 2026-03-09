@@ -57,6 +57,13 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
 		mName = name;
 	}
 
+	public User(UUID uuid, String tag, String password, String name, Boolean onlineStr) {
+		this(uuid,tag,password,name);
+		mOnline = onlineStr;
+	}
+
+
+
 	/**
 	 * Retourne le nom de l'utilisateur.
 	 */

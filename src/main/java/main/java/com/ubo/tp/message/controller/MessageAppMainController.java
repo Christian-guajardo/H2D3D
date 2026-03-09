@@ -3,6 +3,7 @@ package main.java.com.ubo.tp.message.controller;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.selection.Selection;
 import main.java.com.ubo.tp.message.core.session.Session;
+import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.MessageAppMainView;
 
 public class MessageAppMainController {
@@ -49,6 +50,9 @@ public class MessageAppMainController {
     }
 
     private void handleLogout() {
+        User u = session.getConnectedUser();
+        u.setOnline(false);
         session.disconnect();
+        dataManager.sendUser(u);
     }
 }

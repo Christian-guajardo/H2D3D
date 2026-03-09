@@ -83,6 +83,11 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
 		}
 	}
 
+	public Channel(UUID uuid, User creator, String channelName, List<User> allUsers, boolean channelPrivate) {
+		this(uuid, creator, channelName, allUsers);
+		mPrivate = channelPrivate;
+	}
+
 	/**
 	 * @return l'utilisateur source du canal.
 	 */
