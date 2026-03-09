@@ -9,7 +9,6 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,12 +48,33 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     }
 
     public Set<Message> getCurrentMessages(){
-        // getSelected user ou channel pour les différencier
-        Set<Message> messages = mDataManager.getMessages().stream()
-                .filter(m -> m.getRecipient().equals(selectedObject.getUuid()))
-                .collect(java.util.stream.Collectors.toSet());
-        if (messages == null) {
-            return new java.util.HashSet<>();
+        if (selectedObject == null) {
+            return new HashSet<>();
+        }
+        if (selectedObject instanceof User) {
+            return getMessagesForUser();
+        } else if (selectedObject instanceof Channel) {
+            return getMessagesForChannel();
+        }
+        return new HashSet<>();
+    }
+
+    private Set<Message> getMessagesForUser() {
+        Set<Message> messages = new HashSet<>();
+        for (Message message : mDataManager.getMessages()) {
+            if (message.getRecipient().equals(selectedObject.getUuid()) || message.getSender().equals(session.getConnectedUser().getUuid())) {
+                messages.add(message);
+            }
+        }
+        return messages;
+    }
+
+    private Set<Message> getMessagesForChannel() {
+        Set<Message> messages = new HashSet<>();
+        for (Message message : mDataManager.getMessages()) {
+            if (message.getRecipient().equals(selectedObject.getUuid())) {
+                messages.add(message);
+            }
         }
         return messages;
     }
