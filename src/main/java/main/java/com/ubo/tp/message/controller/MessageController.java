@@ -77,7 +77,11 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
-        this.refreshMessages();
+        if (selectedObject == null) return;
+        if (addedMessage.getRecipient().equals(selectedObject.getUuid())
+            || addedMessage.getRecipient().equals(session.getConnectedUser().getUuid())) {
+            this.messageListView.addSingleMessageView(addedMessage);
+        }
     }
 
     @Override
@@ -112,7 +116,7 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
         if(!deletedChannel.getUsers().contains(session.getConnectedUser())){
-            if (selectedObject !=null) {
+            if (selectedObject != null) {
                 if (selectedObject.getUuid().equals(deletedChannel.getUuid())) this.selectedObject = null;
             }
         }
@@ -122,7 +126,7 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
         if(!modifiedChannel.getUsers().contains(session.getConnectedUser())){
-            if (selectedObject !=null) {
+            if (selectedObject != null && !modifiedChannel.getCreator().equals(session.getConnectedUser())) {
                 if (selectedObject.getUuid().equals(modifiedChannel.getUuid())) this.selectedObject = null;
             }
         }

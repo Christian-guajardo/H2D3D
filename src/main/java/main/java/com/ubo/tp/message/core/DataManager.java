@@ -181,6 +181,7 @@ public class DataManager {
 		return userMessages;
 	}
 
+
 	/**
 	 * Assignation du répertoire d'échange.
 	 * 
