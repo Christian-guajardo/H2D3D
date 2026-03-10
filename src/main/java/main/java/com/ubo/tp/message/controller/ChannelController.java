@@ -55,7 +55,7 @@ public class ChannelController implements IDatabaseObserver {
                 .filter(channel ->
                         channel.getUsers().contains(session.getConnectedUser())
                                 || channel.getCreator().equals(session.getConnectedUser())
-                                || channel.getUsers().isEmpty())
+                                || !channel.isPrivate())
                 .collect(Collectors.toSet());
     }
 
