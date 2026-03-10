@@ -9,21 +9,20 @@ import java.util.function.Consumer;
 
 /**
  * Composant graphique représentant un canal.
- * Expose addSelectListener() — pas de référence vers le contrôleur.
+ * Expose addSelectListener() et addManageMembersListener().
  */
 public class ChannelComponent extends JPanel {
 
-    private static final Color BG_DEFAULT   = new Color(0x3A3A3A);
-    private static final Color BG_HOVER     = new Color(0x505050);
-    private static final Color BG_SELECTED  = new Color(0x2F80ED);
+    private static final Color BG_DEFAULT  = new Color(0x3A3A3A);
+    private static final Color BG_HOVER    = new Color(0x505050);
+    private static final Color BG_SELECTED = new Color(0x2F80ED);
 
     private Consumer<Channel> onSelect;
+    private Consumer<Channel> onManageMembers;
     private final Channel channel;
     private boolean selected;
 
-    public Channel getChannel() {
-        return channel;
-    }
+    public Channel getChannel() { return channel; }
 
     public ChannelComponent(Channel channel) {
         super(new GridBagLayout());
@@ -33,7 +32,7 @@ public class ChannelComponent extends JPanel {
         setBackground(BG_DEFAULT);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x555555)));
 
-        Insets insets = new Insets(6, 10, 6, 10);
+        Insets insets = new Insets(6, 10, 6, 4);
 
         // Icône "#"
         JLabel hashLabel = new JLabel("#");
@@ -63,7 +62,26 @@ public class ChannelComponent extends JPanel {
         add(creatorLabel, new GridBagConstraints(2, 0,
                 1, 1, 0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
-                insets, 0, 0));
+                new Insets(6, 4, 6, 4), 0, 0));
+
+        // Bouton ⚙ (gestion membres) — visible uniquement si canal privé
+        if (channel.isPrivate()) {
+            JButton manageBtn = new JButton("⚙");
+            manageBtn.setFont(manageBtn.getFont().deriveFont(Font.PLAIN, 11f));
+            manageBtn.setForeground(new Color(0xBBBBBB));
+            manageBtn.setBackground(new Color(0x555555));
+            manageBtn.setBorderPainted(false);
+            manageBtn.setPreferredSize(new Dimension(24, 22));
+            manageBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            manageBtn.setToolTipText("Gérer les membres");
+            manageBtn.addActionListener(e -> {
+                if (onManageMembers != null) onManageMembers.accept(channel);
+            });
+            add(manageBtn, new GridBagConstraints(3, 0,
+                    1, 1, 0, 0,
+                    GridBagConstraints.EAST, GridBagConstraints.NONE,
+                    new Insets(4, 0, 4, 6), 0, 0));
+        }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addMouseListener(new MouseAdapter() {
@@ -79,23 +97,23 @@ public class ChannelComponent extends JPanel {
         });
     }
 
-    /** Change l'état de sélection visuelle. */
     public void setSelected(boolean selected) {
         this.selected = selected;
         setBackground(selected ? BG_SELECTED : BG_DEFAULT);
     }
 
-    public boolean isSelected() {
-        return selected;
-    }
+    public boolean isSelected() { return selected; }
 
     @Override
     public Dimension getMaximumSize() {
         return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
     }
 
-    /** Le contrôleur s'abonne ici. */
     public void addSelectListener(Consumer<Channel> listener) {
         this.onSelect = listener;
+    }
+
+    public void addManageMembersListener(Consumer<Channel> listener) {
+        this.onManageMembers = listener;
     }
 }

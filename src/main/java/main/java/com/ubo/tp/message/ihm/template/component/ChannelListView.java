@@ -15,8 +15,9 @@ public class ChannelListView extends JPanel {
     private final JButton createButton;
     private final List<ChannelComponent> channelComponents = new ArrayList<>();
 
-    // FIX: stocker le listener de sélection pour l'appliquer aux nouveaux composants
+    // Stockés une fois, appliqués à chaque nouveau composant
     private Consumer<Channel> onChannelSelected;
+    private Consumer<Channel> onManageMembers;
 
     public ChannelListView() {
         super(new BorderLayout());
@@ -40,6 +41,7 @@ public class ChannelListView extends JPanel {
         createButton.setBorderPainted(false);
         createButton.setPreferredSize(new Dimension(28, 24));
         createButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        createButton.setToolTipText("Créer un canal");
         header.add(createButton, BorderLayout.EAST);
 
         add(header, BorderLayout.NORTH);
@@ -60,12 +62,14 @@ public class ChannelListView extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
-    /**
-     * FIX: enregistre le listener de sélection UNE SEULE FOIS.
-     * Il sera automatiquement appliqué à chaque composant lors des refreshs.
-     */
+    /** Enregistre le listener de sélection (une seule fois). */
     public void setOnChannelSelected(Consumer<Channel> listener) {
         this.onChannelSelected = listener;
+    }
+
+    /** Enregistre le listener de gestion des membres (une seule fois). */
+    public void setOnManageMembers(Consumer<Channel> listener) {
+        this.onManageMembers = listener;
     }
 
     public void refreshChannel(Set<Channel> channels) {
@@ -81,16 +85,17 @@ public class ChannelListView extends JPanel {
         ChannelComponent comp = new ChannelComponent(channel);
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
 
-        // FIX: appliquer le listener stocké à chaque nouveau composant
         if (onChannelSelected != null) {
             comp.addSelectListener(onChannelSelected);
+        }
+        if (onManageMembers != null) {
+            comp.addManageMembersListener(onManageMembers);
         }
 
         channelComponents.add(comp);
         listPanel.add(comp);
     }
 
-    /** Marque visuellement le canal sélectionné. */
     public void setSelectedChannel(Channel channel) {
         for (ChannelComponent comp : channelComponents) {
             comp.setSelected(comp.getChannel().equals(channel));
@@ -108,10 +113,7 @@ public class ChannelListView extends JPanel {
         listPanel.repaint();
     }
 
-    /**
-     * @deprecated Utiliser setOnChannelSelected() à la place pour éviter
-     *             la duplication des listeners lors des refreshs.
-     */
+    /** @deprecated Utiliser setOnChannelSelected() */
     @Deprecated
     public void addChannelSelectionListener(Consumer<Channel> listener) {
         this.onChannelSelected = listener;

@@ -125,11 +125,26 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
+        if (selectedObject instanceof Channel) {
+            if(selectedObject.getUuid().equals(deletedChannel.getUuid())) {
+                selectedObject = null;
+                this.refreshMessages();
+            }
+        }
+
 
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
+        if (selectedObject instanceof Channel) {
+            if(selectedObject.getUuid().equals(modifiedChannel.getUuid())) {
+                if( ! modifiedChannel.getUsers().contains(session.getConnectedUser())) {
+                    selectedObject = null;
+                    this.refreshMessages();
+                }
 
+            }
+        }
     }
 }
