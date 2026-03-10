@@ -138,6 +138,26 @@ public class UserListView extends JPanel {
         }
     }
 
+    /** Incrémente le badge de notification pour l'utilisateur donné. */
+    public void incrementNotificationCount(User user) {
+        for (UserComponent comp : userComponents) {
+            if (comp.getUser().equals(user)) {
+                comp.setNotificationCount(comp.getNotificationCount() + 1);
+                break;
+            }
+        }
+    }
+
+    /** Décrémente le badge de notification pour l'utilisateur donné (minimum 0). */
+    public void decrementNotificationCount(User user) {
+        for (UserComponent comp : userComponents) {
+            if (comp.getUser().equals(user)) {
+                comp.setNotificationCount(Math.max(0, comp.getNotificationCount() - 1));
+                break;
+            }
+        }
+    }
+
     public void addUserSelectListener(Consumer<User> listener) {
         selectListeners.add(listener);
         for (UserComponent userComponent : userComponents) {
