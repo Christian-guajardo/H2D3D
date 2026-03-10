@@ -120,16 +120,16 @@ public class ChannelController implements IDatabaseObserver {
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels());
+        this.refreshChannels();
     }
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels());
+        this.refreshChannels();
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels());
+        this.refreshChannels();
     }
 }
