@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ChannelController implements IDatabaseObserver, ISessionObserver {
+public class ChannelController implements IDatabaseObserver {
     private final DataManager mDataManager;
     private final Selection selection;
     private final ChannelListView channelListView;
@@ -108,15 +108,7 @@ public class ChannelController implements IDatabaseObserver, ISessionObserver {
                 .collect(Collectors.toSet());
     }
 
-    @Override
-    public void notifyLogin(User connectedUser) {
-        this.channelListView.refreshChannel(getFilteredChannels());
-    }
 
-    @Override
-    public void notifyLogout() {
-        this.channelListView.refreshChannel(Set.of());
-    }
 
     @Override public void notifyMessageAdded(Message addedMessage) {}
     @Override public void notifyMessageDeleted(Message deletedMessage) {}
@@ -127,16 +119,16 @@ public class ChannelController implements IDatabaseObserver, ISessionObserver {
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels());
+        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
     }
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels());
+        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels());
+        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
     }
 }

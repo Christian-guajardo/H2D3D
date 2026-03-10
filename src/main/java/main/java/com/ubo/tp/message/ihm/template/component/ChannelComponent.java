@@ -1,16 +1,14 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
 import main.java.com.ubo.tp.message.datamodel.Channel;
+import main.java.com.ubo.tp.message.datamodel.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
-/**
- * Composant graphique représentant un canal.
- * Expose addSelectListener() et addManageMembersListener().
- */
 public class ChannelComponent extends JPanel {
 
     private static final Color BG_DEFAULT  = new Color(0x3A3A3A);
@@ -24,7 +22,7 @@ public class ChannelComponent extends JPanel {
 
     public Channel getChannel() { return channel; }
 
-    public ChannelComponent(Channel channel) {
+    public ChannelComponent(Channel channel, User connectedUser) {
         super(new GridBagLayout());
         this.channel = channel;
         this.selected = false;
@@ -34,8 +32,8 @@ public class ChannelComponent extends JPanel {
 
         Insets insets = new Insets(6, 10, 6, 4);
 
-        // Icône "#"
-        JLabel hashLabel = new JLabel("#");
+        String etat = channel.isPrivate() ? "private" : "public";
+        JLabel hashLabel = new JLabel("#" + etat);
         hashLabel.setFont(hashLabel.getFont().deriveFont(Font.BOLD, 16f));
         hashLabel.setForeground(new Color(0xAAAAAA));
         hashLabel.setOpaque(false);
@@ -44,7 +42,6 @@ public class ChannelComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 insets, 0, 0));
 
-        // Nom du canal
         JLabel nameLabel = new JLabel(channel.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.PLAIN, 13f));
         nameLabel.setForeground(Color.WHITE);
@@ -54,7 +51,6 @@ public class ChannelComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
                 insets, 0, 0));
 
-        // Créateur
         JLabel creatorLabel = new JLabel(channel.getCreator().getName());
         creatorLabel.setFont(creatorLabel.getFont().deriveFont(Font.ITALIC, 10f));
         creatorLabel.setForeground(new Color(0x888888));
@@ -64,8 +60,14 @@ public class ChannelComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 new Insets(6, 4, 6, 4), 0, 0));
 
-        // Bouton ⚙ (gestion membres) — visible uniquement si canal privé
-        if (channel.isPrivate()) {
+        // Bouton ⚙ visible si :
+        // - créateur (canal public ou privé) → peut gérer membres ou supprimer
+        // - membre d'un canal privé → peut quitter
+        boolean isCreator = connectedUser != null && channel.getCreator().equals(connectedUser);
+        boolean isMemberOfPrivate = channel.isPrivate() && connectedUser != null
+                && channel.getUsers().contains(connectedUser);
+
+        if (isCreator || isMemberOfPrivate) {
             JButton manageBtn = new JButton("⚙");
             manageBtn.setFont(manageBtn.getFont().deriveFont(Font.PLAIN, 11f));
             manageBtn.setForeground(new Color(0xBBBBBB));
@@ -73,7 +75,7 @@ public class ChannelComponent extends JPanel {
             manageBtn.setBorderPainted(false);
             manageBtn.setPreferredSize(new Dimension(24, 22));
             manageBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            manageBtn.setToolTipText("Gérer les membres");
+            manageBtn.setToolTipText(isCreator ? "Gérer le canal" : "Quitter le canal");
             manageBtn.addActionListener(e -> {
                 if (onManageMembers != null) onManageMembers.accept(channel);
             });
@@ -109,11 +111,6 @@ public class ChannelComponent extends JPanel {
         return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
     }
 
-    public void addSelectListener(Consumer<Channel> listener) {
-        this.onSelect = listener;
-    }
-
-    public void addManageMembersListener(Consumer<Channel> listener) {
-        this.onManageMembers = listener;
-    }
+    public void addSelectListener(Consumer<Channel> listener) { this.onSelect = listener; }
+    public void addManageMembersListener(Consumer<Channel> listener) { this.onManageMembers = listener; }
 }
