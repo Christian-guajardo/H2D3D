@@ -9,15 +9,11 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.ChannelListView;
-import main.java.com.ubo.tp.message.ihm.template.component.CreateChannelDialog;
-import main.java.com.ubo.tp.message.ihm.template.component.ManageChannelMembersDialog;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
 
 public class ChannelController implements IDatabaseObserver {
     private final DataManager mDataManager;
@@ -35,92 +31,79 @@ public class ChannelController implements IDatabaseObserver {
         this.session = session;
         this.channelListView = new ChannelListView();
 
+        // Sélection d'un canal
         this.channelListView.setOnChannelSelected(channel -> {
             selection.changeSelection(channel);
             channelListView.setSelectedChannel(channel);
         });
 
-
-        this.channelListView.addCreateChannelListener(e -> openCreateChannelDialog());
-
-
-        this.channelListView.setOnManageMembers(this::openManageMembersDialog);
-
-        this.channelListView.refreshChannel(this.getFilteredChannels());
-
-    }
-
-    /** Ouvre le dialog de création de canal. */
-    private void openCreateChannelDialog() {
-        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(channelListView);
-
-        Set<User> availableUsers = mDataManager.getUsers().stream()
-                .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
-                .filter(u -> !u.equals(session.getConnectedUser()))
-                .collect(Collectors.toSet());
-
-        CreateChannelDialog.CreateChannelResult result =
-                CreateChannelDialog.show(parentFrame, availableUsers);
-
-        if (result != null) {
-            Channel newChannel = new Channel(
-                    session.getConnectedUser(),
-                    result.name,
-                    result.members
-            );
-
-            if (result.isPrivate && result.members.isEmpty()) {
-                Channel privateEmpty = new Channel(
-                        java.util.UUID.randomUUID(),
+        // Création : la vue ouvre le dialog, renvoie (name, isPrivate, members)
+        this.channelListView.setOnCreateChannel((name, isPrivate, members) ->
+                mDataManager.sendChannel(new Channel(
+                        UUID.randomUUID(),
                         session.getConnectedUser(),
-                        result.name,
-                        result.members,
-                        true
-                );
-                mDataManager.sendChannel(privateEmpty);
-            } else {
-                mDataManager.sendChannel(newChannel);
-            }
-        }
-    }
+                        name,
+                        members,
+                        isPrivate
+                ))
+        );
 
-    /** Ouvre le dialog de gestion des membres (créateur uniquement). */
-    private void openManageMembersDialog(Channel channel) {
-        if (!channel.getCreator().equals(session.getConnectedUser())) {
-            JOptionPane.showMessageDialog(channelListView,
-                    "Seul le créateur du canal peut gérer les membres.",
-                    "Accès refusé", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        // Gestion membres : la vue ouvre le dialog, renvoie la nouvelle liste
+        this.channelListView.setOnManageMembers((channel, newMembers) ->
+                mDataManager.sendChannel(new Channel(
+                        channel.getUuid(),
+                        channel.getCreator(),
+                        channel.getName(),
+                        newMembers,
+                        channel.isPrivate()
+                ))
+        );
 
-        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(channelListView);
-
-        Set<User> allUsers = mDataManager.getUsers().stream()
-                .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
-                .filter(u -> !u.equals(session.getConnectedUser()))
-                .collect(Collectors.toSet());
-
-        List<User> newMembers = ManageChannelMembersDialog.show(parentFrame, channel, allUsers);
-
-        if (newMembers != null) {
-            // Recréer le canal avec la nouvelle liste (même UUID)
-            Channel updated = new Channel(
+        // Quitter un canal
+        this.channelListView.setOnLeaveChannel(channel -> {
+            List<User> newMembers = channel.getUsers().stream()
+                    .filter(u -> !u.equals(session.getConnectedUser()))
+                    .collect(Collectors.toList());
+            mDataManager.sendChannel(new Channel(
                     channel.getUuid(),
                     channel.getCreator(),
                     channel.getName(),
                     newMembers,
-                    channel.isPrivate() || !newMembers.isEmpty()
-            );
-            mDataManager.sendChannel(updated);
-        }
+                    channel.isPrivate()
+            ));
+        });
+
+        // Supprimer un canal (créateur uniquement — la vue vérifie déjà via connectedUserProvider)
+        this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
+
+        // Fournisseurs de données pour que la vue peuple ses dialogs sans connaître le controller
+        this.channelListView.setUsersProvider(() ->
+                mDataManager.getUsers().stream()
+                        .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
+                        .filter(u -> !u.equals(session.getConnectedUser()))
+                        .collect(Collectors.toSet())
+        );
+        this.channelListView.setConnectedUserProvider(() -> session.getConnectedUser());
+
+        this.channelListView.refreshChannel(getFilteredChannels());
     }
 
+    /**
+     * - Créateur : voit toujours son canal
+     * - Canal privé : seulement si l'user est dans la liste des membres
+     * - Canal public : visible par tous
+     *
+     * FIX: guard null sur me (au login la session peut ne pas encore être établie)
+     */
     public Set<Channel> getFilteredChannels() {
+        User me = session.getConnectedUser();
+        if (me == null) return Set.of();
         return mDataManager.getChannels().stream()
-                .filter(channel ->
-                        channel.getUsers().contains(session.getConnectedUser())
-                                || channel.getCreator().equals(session.getConnectedUser())
-                                || !channel.isPrivate())
+                .filter(channel -> {
+                    if (channel.getCreator().equals(me)) return true;
+                    if (channel.isPrivate()) return channel.getUsers().contains(me);
+                    return true; // public
+                })
                 .collect(Collectors.toSet());
     }
 
