@@ -4,6 +4,10 @@ import main.java.com.ubo.tp.message.controller.MessageController;
 import main.java.com.ubo.tp.message.controller.MessageInputController;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +44,34 @@ public class MessageInputView extends JPanel {
                 BorderFactory.createLineBorder(new Color(0xCCCCCC)),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)));
 
+        ((AbstractDocument) inputArea.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                    throws BadLocationException {
+                if (string == null) return;
+                int newLength = fb.getDocument().getLength() + string.length();
+                if (newLength <= MessageController.MESSAGE_MAX_LENGTH) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                if (text == null) text = "";
+                int newLength = fb.getDocument().getLength() - length + text.length();
+                if (newLength <= MessageController.MESSAGE_MAX_LENGTH) {
+                    super.replace(fb, offset, length, text, attrs);
+                } else {
+                    // On insère autant de caractères que possible
+                    int available = MessageController.MESSAGE_MAX_LENGTH - (fb.getDocument().getLength() - length);
+                    if (available > 0) {
+                        super.replace(fb, offset, length, text.substring(0, available), attrs);
+                    }
+                }
+            }
+        });
+
         // Entrée = envoi, Maj+Entrée = saut de ligne
         inputArea.addKeyListener(new KeyAdapter() {
             @Override public void keyPressed(KeyEvent e) {
@@ -69,9 +101,14 @@ public class MessageInputView extends JPanel {
 
     private void triggerSend() {
         String text = inputArea.getText().trim();
-        if (!text.isEmpty()) {
+        if (!text.isEmpty() && text.length() <= MessageController.MESSAGE_MAX_LENGTH) {
             this.messageInputController.sendMessage(text);
             inputArea.setText("");
+        }else {
+            JOptionPane.showMessageDialog(this,
+                    "Le message doit contenir entre 1 et " + MessageController.MESSAGE_MAX_LENGTH + " caractères.",
+                    "Message invalide",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
