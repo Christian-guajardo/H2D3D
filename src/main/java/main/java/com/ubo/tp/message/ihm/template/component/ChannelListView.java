@@ -91,40 +91,46 @@ public class ChannelListView extends JPanel {
         Frame parent = getParentFrame();
 
         if (isCreator) {
-            String[] options = {"Gérer les membres", "Supprimer le canal", "Annuler"};
-            int choice = JOptionPane.showOptionDialog(
-                    parent,
-                    "Que voulez-vous faire avec #" + channel.getName() + " ?",
-                    "Options du canal",
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.PLAIN_MESSAGE,
-                    null, options, options[0]);
+            if (channel.isPrivate()) {
+                String[] options = {"Gérer les membres", "Supprimer le canal", "Annuler"};
+                int choice = JOptionPane.showOptionDialog(parent,
+                        "Que voulez-vous faire avec #" + channel.getName() + " ?",
+                        "Options du canal",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+                        null, options, options[0]);
 
-            if (choice == 0) {
-                List<User> newMembers = ManageChannelMembersDialog.show(parent, channel, allUsers);
-                if (newMembers != null && onManageMembers != null) {
-                    onManageMembers.accept(channel, newMembers);
+                if (choice == 0) {
+                    List<User> newMembers = ManageChannelMembersDialog.show(parent, channel, allUsers);
+                    if (newMembers != null && onManageMembers != null) {
+                        onManageMembers.accept(channel, newMembers);
+                    }
+                } else if (choice == 1) {
+                    confirmAndDelete(channel, parent);
                 }
-            } else if (choice == 1) {
-                int confirm = JOptionPane.showConfirmDialog(
-                        parent,
-                        "Supprimer définitivement #" + channel.getName() + " ?",
-                        "Supprimer le canal",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
-                if (confirm == JOptionPane.YES_OPTION && onDeleteChannel != null) {
-                    onDeleteChannel.accept(channel);
-                }
+            } else {
+                confirmAndDelete(channel, parent);
             }
         } else {
-            int confirm = JOptionPane.showConfirmDialog(
-                    parent,
+            if (channel.isPrivate()) {
+                int confirm = JOptionPane.showConfirmDialog(parent,
                     "Quitter le canal #" + channel.getName() + " ?",
                     "Quitter le canal",
                     JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION && onLeaveChannel != null) {
-                onLeaveChannel.accept(channel);
+                if (confirm == JOptionPane.YES_OPTION && onLeaveChannel != null) {
+                    onLeaveChannel.accept(channel);
+                }
             }
+        }
+    }
+
+    private void confirmAndDelete(Channel channel, Frame parent) {
+        int confirm = JOptionPane.showConfirmDialog(parent,
+                "Supprimer définitivement #" + channel.getName() + " ?",
+                "Supprimer le canal",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (confirm == JOptionPane.YES_OPTION && onDeleteChannel != null) {
+            onDeleteChannel.accept(channel);
         }
     }
 
@@ -138,20 +144,19 @@ public class ChannelListView extends JPanel {
 
 
 
-    public void refreshChannel(Set<Channel> channels) {
+    public void refreshChannel(Set<Channel> channels, User connectedUser) {
         listPanel.removeAll();
         channelComponents.clear();
-        for (Channel c : channels) addChannelRow(c);
+        for (Channel c : channels) addChannelRow(c, connectedUser);
         listPanel.add(Box.createVerticalGlue());
         listPanel.revalidate();
         listPanel.repaint();
     }
 
-    private void addChannelRow(Channel channel) {
-        ChannelComponent comp = new ChannelComponent(channel);
+    private void addChannelRow(Channel channel, User connectedUser) {
+        ChannelComponent comp = new ChannelComponent(channel, connectedUser); // passe connectedUser
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
         if (onChannelSelected != null) comp.addSelectListener(onChannelSelected);
-        // Le bouton ⚙ notifie le controller qui rappelle openChannelOptions avec les bonnes données
         comp.addManageMembersListener(c -> { if (onManageMembersRequested != null) onManageMembersRequested.accept(c); });
         channelComponents.add(comp);
         listPanel.add(comp);
