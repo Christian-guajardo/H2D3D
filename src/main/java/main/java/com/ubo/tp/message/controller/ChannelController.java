@@ -4,7 +4,6 @@ import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.Selection;
-import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
@@ -86,7 +85,7 @@ public class ChannelController implements IDatabaseObserver {
             ));
         });
 
-       //this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
+       this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
     }
 
     private Set<User> getAvailableUsers() {
@@ -108,7 +107,9 @@ public class ChannelController implements IDatabaseObserver {
                 .collect(Collectors.toSet());
     }
 
-
+    public void refreshChannels(){
+        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
+    }
 
     @Override public void notifyMessageAdded(Message addedMessage) {}
     @Override public void notifyMessageDeleted(Message deletedMessage) {}
@@ -119,16 +120,16 @@ public class ChannelController implements IDatabaseObserver {
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
+        this.refreshChannels();
     }
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
+        this.refreshChannels();
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
-        this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
+        this.refreshChannels();
     }
 }
