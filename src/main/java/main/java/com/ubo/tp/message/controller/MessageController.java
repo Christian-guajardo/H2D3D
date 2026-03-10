@@ -15,24 +15,21 @@ import java.util.Set;
 
 public class MessageController implements ISelectionObserver, IDatabaseObserver {
     public static final int MESSAGE_MAX_LENGTH = 200;
-    private DataManager mDataManager;
-    private Session session;
+    private final DataManager mDataManager;
+    private final Session session;
     private AbstractMessageAppObject selectedObject;
-    private MessageListView messageListView;
+    private final MessageListView messageListView;
 
     public MessageController(DataManager mDataManager, Session session) {
         this.mDataManager = mDataManager;
         this.session = session;
         this.messageListView = new MessageListView();
-        this.messageListView.setDeleteContext(
-                session::getConnectedUser,
-                mDataManager::deleteMessage
-        );
+        // Le callback de suppression est enregistré une seule fois
+        this.messageListView.setOnDelete(mDataManager::deleteMessage);
     }
 
     public void refreshMessages() {
-        Set<Message> messages = getCurrentMessages();
-        messageListView.refreshMessage(messages);
+        messageListView.refreshMessage(getCurrentMessages(), session.getConnectedUser());
     }
 
     public void sendMessage(String text) {
@@ -57,11 +54,13 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     private Set<Message> getMessagesForUser() {
         Set<Message> messages = new HashSet<>();
+        User me = session.getConnectedUser();
         for (Message message : mDataManager.getMessages()) {
-            if (message.getRecipient().equals(selectedObject.getUuid()) && message.getSender().equals(session.getConnectedUser())
-                    ||  message.getRecipient().equals(session.getConnectedUser().getUuid()) && message.getSender().equals((User) selectedObject)) {
-                messages.add(message);
-            }
+            boolean iSentToThem = message.getRecipient().equals(selectedObject.getUuid())
+                    && message.getSender().equals(me);
+            boolean theySentToMe = message.getRecipient().equals(me.getUuid())
+                    && message.getSender().equals((User) selectedObject);
+            if (iSentToThem || theySentToMe) messages.add(message);
         }
         return messages;
     }
@@ -78,62 +77,66 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     public MessageListView getMessageListView() { return messageListView; }
 
-
     @Override
     public void notifyMessageAdded(Message addedMessage) {
         if (selectedObject == null) return;
-        if (addedMessage.getRecipient().equals(selectedObject.getUuid())
-            || addedMessage.getRecipient().equals(session.getConnectedUser().getUuid())) {
-            this.messageListView.addSingleMessageView(addedMessage);
+        User me = session.getConnectedUser();
+        boolean isForCurrentConversation =
+                addedMessage.getRecipient().equals(selectedObject.getUuid())
+                        || (selectedObject instanceof User
+                        && addedMessage.getRecipient().equals(me.getUuid())
+                        && addedMessage.getSender().equals((User) selectedObject));
+
+        if (isForCurrentConversation) {
+            messageListView.addSingleMessage(addedMessage, me);
         }
     }
 
     @Override
     public void notifyMessageDeleted(Message deletedMessage) {
-        this.refreshMessages();
+        refreshMessages();
     }
 
     @Override
     public void notifyMessageModified(Message modifiedMessage) {
-        this.refreshMessages();
+        refreshMessages();
     }
 
-    @Override
-    public void notifyUserAdded(User addedUser) {}
+    @Override public void notifyUserAdded(User addedUser) {}
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
-        if (selectedObject !=null) {
-            if (selectedObject.getUuid().equals(deletedUser.getUuid())) this.selectedObject = null;
+        if (selectedObject != null && selectedObject.getUuid().equals(deletedUser.getUuid())) {
+            selectedObject = null;
         }
-        this.refreshMessages();
+        refreshMessages();
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
-        this.refreshMessages();
+        refreshMessages();
     }
 
-    @Override
-    public void notifyChannelAdded(Channel addedChannel) {}
+    @Override public void notifyChannelAdded(Channel addedChannel) {}
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
-        if(!deletedChannel.getUsers().contains(session.getConnectedUser())){
-            if (selectedObject != null) {
-                if (selectedObject.getUuid().equals(deletedChannel.getUuid())) this.selectedObject = null;
-            }
+        if (selectedObject != null && selectedObject.getUuid().equals(deletedChannel.getUuid())) {
+            selectedObject = null;
         }
-        this.refreshMessages();
+        refreshMessages();
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
-        if(!modifiedChannel.getUsers().contains(session.getConnectedUser())){
-            if (selectedObject != null && !modifiedChannel.getCreator().equals(session.getConnectedUser())) {
-                if (selectedObject.getUuid().equals(modifiedChannel.getUuid())) this.selectedObject = null;
-            }
+        User me = session.getConnectedUser();
+        // Si on est retiré du canal et qu'on l'avait sélectionné → vider
+        boolean isMember = modifiedChannel.getUsers().contains(me)
+                || modifiedChannel.getCreator().equals(me);
+        if (!isMember && selectedObject != null
+                && selectedObject.getUuid().equals(modifiedChannel.getUuid())) {
+            selectedObject = null;
         }
-        this.refreshMessages();
+        refreshMessages();
     }
 }
