@@ -33,6 +33,6 @@ public class MessageAppLauncher {
 
 	public static void main(String[] args) {
 		launchApp();
-		//launchApp();
+
 	}
 }
