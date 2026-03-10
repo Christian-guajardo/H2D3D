@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MessageController implements ISelectionObserver, IDatabaseObserver {
+    public static final int MESSAGE_MAX_LENGTH = 200;
     private DataManager mDataManager;
     private Session session;
     private AbstractMessageAppObject selectedObject;

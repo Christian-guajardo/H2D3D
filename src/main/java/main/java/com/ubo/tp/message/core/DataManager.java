@@ -197,4 +197,8 @@ public class DataManager {
 	public void modifyMessageFile(Message message) {
 		this.mEntityManager.modifyMessageFile(message);
 	}
+
+	public void deleteChannel(Channel channel) {
+		this.mEntityManager.deleteChannelFile(channel);
+	}
 }

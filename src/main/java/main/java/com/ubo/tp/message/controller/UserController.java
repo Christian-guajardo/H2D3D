@@ -37,11 +37,11 @@ public class UserController implements IDatabaseObserver {
         attachListener();
     }
 
-    // FIX: méthode utilitaire pour récupérer les users sans UNKNOWN_USER
+    // filtre notre utilisateur connecté et le unknow user
     private Set<User> getFilteredUsers() {
         return dataManager.getUsers().stream()
-                .filter(user -> !user.getUuid().equals(Constants.UNKNONWN_USER_UUID))
-                .filter(user -> !user.getUuid().equals(session.getConnectedUser() != null ? session.getConnectedUser().getUuid() : ""))
+                .filter(u -> !u.equals(session.getConnectedUser()))
+                .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
                 .collect(Collectors.toSet());
     }
 
