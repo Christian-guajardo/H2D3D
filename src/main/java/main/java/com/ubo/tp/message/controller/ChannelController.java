@@ -40,6 +40,8 @@ public class ChannelController implements IDatabaseObserver {
         this.channelListView.setOnChannelSelected(channel -> {
             selection.changeSelection(channel);
             channelListView.setSelectedChannel(channel);
+            // Remet le badge à 0 (messages considérés comme lus)
+            channelListView.setNotificationCount(channel, 0);
             if (onChannelSelected != null) onChannelSelected.run();
         });
 
@@ -117,8 +119,36 @@ public class ChannelController implements IDatabaseObserver {
         this.channelListView.refreshChannel(this.getFilteredChannels(),session.getConnectedUser());
     }
 
-    @Override public void notifyMessageAdded(Message addedMessage) {}
-    @Override public void notifyMessageDeleted(Message deletedMessage) {}
+    @Override
+    public void notifyMessageAdded(Message addedMessage) {
+        User me = session.getConnectedUser();
+        if (me == null) return;
+        // Ignorer les messages envoyés par nous-mêmes
+        if (me.equals(addedMessage.getSender())) return;
+        // Trouver le canal destinataire parmi les canaux filtrés
+        getFilteredChannels().stream()
+                .filter(c -> c.getUuid().equals(addedMessage.getRecipient()))
+                .findFirst()
+                .ifPresent(channel -> {
+                    // Pas de badge si le canal est actuellement sélectionné
+                    if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(channel.getUuid())) return;
+                    channelListView.incrementNotificationCount(channel);
+                });
+    }
+
+    @Override
+    public void notifyMessageDeleted(Message deletedMessage) {
+        User me = session.getConnectedUser();
+        if (me == null) return;
+        if (me.equals(deletedMessage.getSender())) return;
+        getFilteredChannels().stream()
+                .filter(c -> c.getUuid().equals(deletedMessage.getRecipient()))
+                .findFirst()
+                .ifPresent(channel -> {
+                    if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(channel.getUuid())) return;
+                    channelListView.decrementNotificationCount(channel);
+                });
+    }
     @Override public void notifyMessageModified(Message modifiedMessage) {}
     @Override public void notifyUserAdded(User addedUser) {}
     @Override public void notifyUserDeleted(User deletedUser) {}

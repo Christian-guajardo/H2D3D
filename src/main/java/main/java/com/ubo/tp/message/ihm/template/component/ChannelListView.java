@@ -219,6 +219,36 @@ public class ChannelListView extends JPanel {
         }
     }
 
+    /** Met à jour le badge de notification pour le canal donné. */
+    public void setNotificationCount(Channel channel, int count) {
+        for (ChannelComponent comp : channelComponents) {
+            if (comp.getChannel().equals(channel)) {
+                comp.setNotificationCount(count);
+                break;
+            }
+        }
+    }
+
+    /** Incrémente le badge de notification pour le canal donné. */
+    public void incrementNotificationCount(Channel channel) {
+        for (ChannelComponent comp : channelComponents) {
+            if (comp.getChannel().equals(channel)) {
+                comp.setNotificationCount(comp.getNotificationCount() + 1);
+                break;
+            }
+        }
+    }
+
+    /** Décrémente le badge de notification pour le canal donné (minimum 0). */
+    public void decrementNotificationCount(Channel channel) {
+        for (ChannelComponent comp : channelComponents) {
+            if (comp.getChannel().equals(channel)) {
+                comp.setNotificationCount(Math.max(0, comp.getNotificationCount() - 1));
+                break;
+            }
+        }
+    }
+
     public void clear() {
         listPanel.removeAll();
         channelComponents.clear();

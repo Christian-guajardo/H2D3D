@@ -19,6 +19,8 @@ public class ChannelComponent extends JPanel {
     private Consumer<Channel> onManageMembers;
     private final Channel channel;
     private boolean selected;
+    private int notificationCount = 0;
+    private final JLabel badgeLabel;
 
     public Channel getChannel() { return channel; }
 
@@ -30,39 +32,44 @@ public class ChannelComponent extends JPanel {
         setBackground(BG_DEFAULT);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x555555)));
 
-        Insets insets = new Insets(6, 10, 6, 4);
+        // ── Ligne 0 : icône | nom | badge | bouton ⚙ ──────────────────────────
 
-        String etat = channel.isPrivate() ? "private" : "public";
-        JLabel hashLabel = new JLabel("#" + etat);
-        hashLabel.setFont(hashLabel.getFont().deriveFont(Font.BOLD, 16f));
+        // Colonne 0 : icône #public / #private
+        String etat = channel.isPrivate() ? "🔒" : "#";
+        JLabel hashLabel = new JLabel(etat);
+        hashLabel.setFont(hashLabel.getFont().deriveFont(Font.BOLD, 14f));
         hashLabel.setForeground(new Color(0xAAAAAA));
         hashLabel.setOpaque(false);
         add(hashLabel, new GridBagConstraints(0, 0,
                 1, 1, 0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
-                insets, 0, 0));
+                new Insets(6, 10, 2, 4), 0, 0));
 
+        // Colonne 1 : nom du canal (prend tout l'espace restant, tronqué si besoin)
         JLabel nameLabel = new JLabel(channel.getName());
-        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.PLAIN, 13f));
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 13f));
         nameLabel.setForeground(Color.WHITE);
         nameLabel.setOpaque(false);
+        nameLabel.setMinimumSize(new Dimension(0, nameLabel.getPreferredSize().height));
         add(nameLabel, new GridBagConstraints(1, 0,
                 1, 1, 1.0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                insets, 0, 0));
+                new Insets(6, 0, 2, 4), 0, 0));
 
-        JLabel creatorLabel = new JLabel(channel.getCreator().getName());
-        creatorLabel.setFont(creatorLabel.getFont().deriveFont(Font.ITALIC, 10f));
-        creatorLabel.setForeground(new Color(0x888888));
-        creatorLabel.setOpaque(false);
-        add(creatorLabel, new GridBagConstraints(2, 0,
+        // Colonne 2 : badge de notification
+        badgeLabel = new JLabel("", SwingConstants.CENTER);
+        badgeLabel.setOpaque(true);
+        badgeLabel.setBackground(new Color(0xE74C3C));
+        badgeLabel.setForeground(Color.WHITE);
+        badgeLabel.setFont(badgeLabel.getFont().deriveFont(Font.BOLD, 10f));
+        badgeLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
+        badgeLabel.setVisible(false);
+        add(badgeLabel, new GridBagConstraints(2, 0,
                 1, 1, 0, 0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(6, 4, 6, 4), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(6, 2, 2, 2), 0, 0));
 
-        // Bouton ⚙ visible si :
-        // - créateur (canal public ou privé) → peut gérer membres ou supprimer
-        // - membre d'un canal privé → peut quitter
+        // Colonne 3 : bouton ⚙ (conditionnel)
         boolean isCreator = connectedUser != null && channel.getCreator().equals(connectedUser);
         boolean isMemberOfPrivate = channel.isPrivate() && connectedUser != null
                 && channel.getUsers().contains(connectedUser);
@@ -73,7 +80,10 @@ public class ChannelComponent extends JPanel {
             manageBtn.setForeground(new Color(0xBBBBBB));
             manageBtn.setBackground(new Color(0x555555));
             manageBtn.setBorderPainted(false);
+            manageBtn.setFocusPainted(false);
             manageBtn.setPreferredSize(new Dimension(24, 22));
+            manageBtn.setMinimumSize(new Dimension(24, 22));
+            manageBtn.setMaximumSize(new Dimension(24, 22));
             manageBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             manageBtn.setToolTipText(isCreator ? "Gérer le canal" : "Quitter le canal");
             manageBtn.addActionListener(e -> {
@@ -82,8 +92,18 @@ public class ChannelComponent extends JPanel {
             add(manageBtn, new GridBagConstraints(3, 0,
                     1, 1, 0, 0,
                     GridBagConstraints.EAST, GridBagConstraints.NONE,
-                    new Insets(4, 0, 4, 6), 0, 0));
+                    new Insets(4, 0, 2, 8), 0, 0));
         }
+
+        // ── Ligne 1 : créateur (s'étend sur toutes les colonnes) ───────────────
+        JLabel creatorLabel = new JLabel("par " + channel.getCreator().getName());
+        creatorLabel.setFont(creatorLabel.getFont().deriveFont(Font.ITALIC, 10f));
+        creatorLabel.setForeground(new Color(0x888888));
+        creatorLabel.setOpaque(false);
+        add(creatorLabel, new GridBagConstraints(0, 1,
+                4, 1, 1.0, 0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 10, 6, 8), 0, 0));
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addMouseListener(new MouseAdapter() {
@@ -99,9 +119,27 @@ public class ChannelComponent extends JPanel {
         });
     }
 
+    /** Met à jour le badge de notification. 0 = badge caché. */
+    public void setNotificationCount(int count) {
+        this.notificationCount = count;
+        if (count > 0) {
+            badgeLabel.setText(count > 99 ? "99+" : String.valueOf(count));
+            badgeLabel.setVisible(true);
+        } else {
+            badgeLabel.setVisible(false);
+        }
+        revalidate();
+        repaint();
+    }
+
+    public int getNotificationCount() {
+        return notificationCount;
+    }
+
     public void setSelected(boolean selected) {
         this.selected = selected;
         setBackground(selected ? BG_SELECTED : BG_DEFAULT);
+        if (selected) setNotificationCount(0);
     }
 
     public boolean isSelected() { return selected; }
