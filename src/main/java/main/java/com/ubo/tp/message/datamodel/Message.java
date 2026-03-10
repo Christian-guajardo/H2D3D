@@ -12,7 +12,7 @@ public class Message extends AbstractMessageAppObject {
 	/**
 	 * Utilisateur source du message.
 	 */
-	protected final User mSender;
+	protected User mSender;
 
 	/**
 	 * Destinataire du message.
@@ -62,6 +62,13 @@ public class Message extends AbstractMessageAppObject {
 	 */
 	public User getSender() {
 		return mSender;
+	}
+
+	/**
+	 * @param sender l'utilisateur source du message.
+	 */
+	public void setSender(User sender) {
+		this.mSender = sender;
 	}
 
 	/**

@@ -313,4 +313,13 @@ public class DataFilesManager {
 
 		return userList;
 	}
+
+	/**
+	 * Modification d'un fichier pour un Message.
+	 *
+	 * @param message
+	 */
+	public void modifyMessageFile(Message message) {
+		this.writeMessageFile(message);
+	}
 }

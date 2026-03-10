@@ -103,6 +103,17 @@ public class DataManager {
 	}
 
 	/**
+	 * Supprime un utilisateur : retire son fichier physique du répertoire d'échange.
+	 * Le WatchableDirectory détectera la suppression et mettra à jour la base en mémoire.
+	 *
+	 * @param user utilisateur à supprimer.
+	 * @return true si le fichier a bien été supprimé.
+	 */
+	public boolean deleteUser(User user) {
+		return this.mEntityManager.deleteUserFile(user);
+	}
+
+	/**
 	 * Ecrit un Canal.
 	 *
 	 * @param channel
@@ -181,5 +192,9 @@ public class DataManager {
 		mWatchableDirectory = new WatchableDirectory(directoryPath);
 		mWatchableDirectory.initWatching();
 		mWatchableDirectory.addObserver(mEntityManager);
+	}
+
+	public void modifyMessageFile(Message message) {
+		this.mEntityManager.modifyMessageFile(message);
 	}
 }

@@ -438,6 +438,18 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	}
 
 	/**
+	 * Modification d'un message dans le fichier correspondant.
+	 */
+	public void modifyMessageFile(Message message) {
+		if (mDirectoryPath != null) {
+			// Modification du fichier de propriété
+			mDataFileManager.modifyMessageFile(message);
+		} else {
+			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
+		}
+	}
+
+	/**
 	 * Génération du fichier correspondant à l'utilisateur.
 	 *
 	 * @param user
@@ -449,6 +461,21 @@ public class EntityManager implements IWatchableDirectoryObserver {
 		} else {
 			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
 		}
+	}
+
+	/**
+	 * Supprime le fichier physique correspondant à l'utilisateur.
+	 *
+	 * @param user utilisateur dont le fichier doit être supprimé.
+	 * @return true si le fichier a bien été supprimé, false sinon.
+	 */
+	public boolean deleteUserFile(User user) {
+		if (mDirectoryPath == null) {
+			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
+		}
+		String filePath = mDirectoryPath + File.separator + user.getUuid() + "." + Constants.USER_FILE_EXTENSION;
+		File file = new File(filePath);
+		return file.exists() && file.delete();
 	}
 
 	/**

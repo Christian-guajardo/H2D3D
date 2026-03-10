@@ -17,6 +17,7 @@ public class ProfileView extends JPanel {
     private JTextField nameField;
     private JButton saveButton;
     private JButton backButton;
+    private JButton deleteButton;
 
     public ProfileView(ProfileController profileController, Runnable onBack) {
         super(new GridBagLayout());
@@ -31,6 +32,11 @@ public class ProfileView extends JPanel {
         nameField = new JTextField(user != null ? user.getName() : "", 20);
         saveButton = new JButton("Modifier");
         backButton = new JButton("Retour");
+        deleteButton = new JButton("Supprimer mon compte");
+        deleteButton.setForeground(Color.WHITE);
+        deleteButton.setBackground(new Color(0xC0392B));
+        deleteButton.setOpaque(true);
+        deleteButton.setBorderPainted(false);
 
         saveButton.addActionListener(e -> {
             Response result = profileController.onUpdateUsername(nameField.getText());
@@ -44,6 +50,19 @@ public class ProfileView extends JPanel {
         backButton.addActionListener(e -> {
             if (onBack != null) {
                 onBack.run();
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Êtes-vous sûr de vouloir supprimer votre compte ?\nCette action est irréversible.",
+                    "Confirmer la suppression",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                profileController.onDeleteAccount();
             }
         });
 
@@ -87,7 +106,7 @@ public class ProfileView extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
                 insets, 0, 0));
 
-        // Boutons
+        // Boutons Retour + Modifier
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(backButton);
         buttonPanel.add(saveButton);
@@ -95,6 +114,21 @@ public class ProfileView extends JPanel {
         this.add(buttonPanel, new GridBagConstraints(0, 3,
                 2, 1, 0, 0,
                 GridBagConstraints.EAST, GridBagConstraints.NONE,
+                insets, 0, 0));
+
+        // Séparateur + bouton de suppression
+        JSeparator separator = new JSeparator();
+        this.add(separator, new GridBagConstraints(0, 4,
+                2, 1, 1, 0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(20, 5, 10, 5), 0, 0));
+
+        JPanel deletePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        deletePanel.add(deleteButton);
+
+        this.add(deletePanel, new GridBagConstraints(0, 5,
+                2, 1, 0, 0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
                 insets, 0, 0));
     }
 
@@ -106,4 +140,3 @@ public class ProfileView extends JPanel {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
     }
 }
-
