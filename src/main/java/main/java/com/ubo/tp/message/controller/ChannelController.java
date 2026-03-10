@@ -20,7 +20,7 @@ public class ChannelController implements IDatabaseObserver {
     private final Selection selection;
     private final ChannelListView channelListView;
     private final Session session;
-    /** Appelé quand un channel est sélectionné — permet de vider la sélection user */
+
     private Runnable onChannelSelected;
 
     public void setOnChannelSelected(Runnable callback) {
@@ -45,22 +45,19 @@ public class ChannelController implements IDatabaseObserver {
             if (onChannelSelected != null) onChannelSelected.run();
         });
 
-
         this.channelListView.setOnCreateChannelRequested(() ->
                 channelListView.openCreateDialog(getAvailableUsers())
         );
 
-
         this.channelListView.setOnCreateChannel((name, isPrivate, members) ->
-                mDataManager.sendChannel(new Channel(
-                        UUID.randomUUID(),
-                        session.getConnectedUser(),
-                        name,
-                        members,
-                        isPrivate
-                ))
+            mDataManager.sendChannel(new Channel(
+                UUID.randomUUID(),
+                session.getConnectedUser(),
+                name,
+                members,
+                isPrivate
+            ))
         );
-
 
         this.channelListView.setOnManageMembersRequested(channel -> {
             User me = session.getConnectedUser();
@@ -68,51 +65,49 @@ public class ChannelController implements IDatabaseObserver {
             channelListView.openChannelOptions(channel, isCreator, getAvailableUsers());
         });
 
-
         this.channelListView.setOnManageMembers((channel, newMembers) ->
-                mDataManager.sendChannel(new Channel(
-                        channel.getUuid(),
-                        channel.getCreator(),
-                        channel.getName(),
-                        newMembers,
-                        channel.isPrivate()
-                ))
+            mDataManager.sendChannel(new Channel(
+                channel.getUuid(),
+                channel.getCreator(),
+                channel.getName(),
+                newMembers,
+                channel.isPrivate()
+            ))
         );
 
         this.channelListView.setOnLeaveChannel(channel -> {
             List<User> newMembers = channel.getUsers().stream()
-                    .filter(u -> !u.equals(session.getConnectedUser()))
-                    .collect(Collectors.toList());
+                .filter(u -> !u.equals(session.getConnectedUser()))
+                .collect(Collectors.toList());
             mDataManager.sendChannel(new Channel(
-                    channel.getUuid(),
-                    channel.getCreator(),
-                    channel.getName(),
-                    newMembers,
-                    channel.isPrivate()
+                channel.getUuid(),
+                channel.getCreator(),
+                channel.getName(),
+                newMembers,
+                channel.isPrivate()
             ));
 
         });
-
        this.channelListView.setOnDeleteChannel(mDataManager::deleteChannel);
     }
 
     private Set<User> getAvailableUsers() {
         return mDataManager.getUsers().stream()
-                .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
-                .filter(u -> !u.equals(session.getConnectedUser()))
-                .collect(Collectors.toSet());
+            .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
+            .filter(u -> !u.equals(session.getConnectedUser()))
+            .collect(Collectors.toSet());
     }
 
     public Set<Channel> getFilteredChannels() {
         User me = session.getConnectedUser();
         if (me == null) return Set.of();
         return mDataManager.getChannels().stream()
-                .filter(channel -> {
-                    if (channel.getCreator().equals(me)) return true;
-                    if (channel.isPrivate()) return channel.getUsers().contains(me);
-                    return true; // public
-                })
-                .collect(Collectors.toSet());
+            .filter(channel -> {
+                if (channel.getCreator().equals(me)) return true;
+                if (channel.isPrivate()) return channel.getUsers().contains(me);
+                return true; // public
+            })
+            .collect(Collectors.toSet());
     }
 
     public void refreshChannels(){
@@ -127,13 +122,13 @@ public class ChannelController implements IDatabaseObserver {
         if (me.equals(addedMessage.getSender())) return;
         // Trouver le canal destinataire parmi les canaux filtrés
         getFilteredChannels().stream()
-                .filter(c -> c.getUuid().equals(addedMessage.getRecipient()))
-                .findFirst()
-                .ifPresent(channel -> {
-                    // Pas de badge si le canal est actuellement sélectionné
-                    if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(channel.getUuid())) return;
-                    channelListView.incrementNotificationCount(channel);
-                });
+            .filter(c -> c.getUuid().equals(addedMessage.getRecipient()))
+            .findFirst()
+            .ifPresent(channel -> {
+                // Pas de badge si le canal est actuellement sélectionné
+                if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(channel.getUuid())) return;
+                channelListView.incrementNotificationCount(channel);
+            });
     }
 
     @Override
@@ -142,12 +137,12 @@ public class ChannelController implements IDatabaseObserver {
         if (me == null) return;
         if (me.equals(deletedMessage.getSender())) return;
         getFilteredChannels().stream()
-                .filter(c -> c.getUuid().equals(deletedMessage.getRecipient()))
-                .findFirst()
-                .ifPresent(channel -> {
-                    if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(channel.getUuid())) return;
-                    channelListView.decrementNotificationCount(channel);
-                });
+            .filter(c -> c.getUuid().equals(deletedMessage.getRecipient()))
+            .findFirst()
+            .ifPresent(channel -> {
+                if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(channel.getUuid())) return;
+                channelListView.decrementNotificationCount(channel);
+            });
     }
     @Override public void notifyMessageModified(Message modifiedMessage) {}
     @Override public void notifyUserAdded(User addedUser) {}
