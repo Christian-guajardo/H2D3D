@@ -5,24 +5,28 @@ import main.java.com.ubo.tp.message.controller.MessageInputController;
 import main.java.com.ubo.tp.message.datamodel.User;
 
 import javax.swing.*;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MessageInputView extends JPanel {
     private final MessageInputController messageInputController;
-    private final JTextArea inputArea;
+    private final JTextPane inputArea;
     private final JButton sendButton;
+
+    private static final Color MENTION_COLOR = new Color(0x2F80ED);
 
     /** Popup d'autocomplétion @ */
     private JPopupMenu mentionPopup;
+
+    /** Flag pour éviter une boucle infinie lors de la recolorisation. */
+    private boolean updatingStyles = false;
 
     public MessageInputView(MessageInputController messageInputController) {
         super(new BorderLayout(6, 0));
@@ -33,13 +37,12 @@ public class MessageInputView extends JPanel {
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
         setBackground(Color.WHITE);
 
-        inputArea = new JTextArea(3, 20);
-        inputArea.setLineWrap(true);
-        inputArea.setWrapStyleWord(true);
-        inputArea.setFont(inputArea.getFont().deriveFont(Font.PLAIN, 13f));
+        inputArea = new JTextPane();
+        inputArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
         inputArea.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0xCCCCCC)),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+        inputArea.setPreferredSize(new Dimension(20, 60));
 
         // Limite de caractères
         ((AbstractDocument) inputArea.getDocument()).setDocumentFilter(new DocumentFilter() {
@@ -47,8 +50,10 @@ public class MessageInputView extends JPanel {
             public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
                     throws BadLocationException {
                 if (string == null) return;
-                if (fb.getDocument().getLength() + string.length() <= MessageController.MESSAGE_MAX_LENGTH)
+                if (fb.getDocument().getLength() + string.length() <= MessageController.MESSAGE_MAX_LENGTH) {
                     super.insertString(fb, offset, string, attr);
+                    if (!updatingStyles) highlightMentions();
+                }
             }
 
             @Override
@@ -58,10 +63,20 @@ public class MessageInputView extends JPanel {
                 int newLength = fb.getDocument().getLength() - length + text.length();
                 if (newLength <= MessageController.MESSAGE_MAX_LENGTH) {
                     super.replace(fb, offset, length, text, attrs);
+                    if (!updatingStyles) highlightMentions();
                 } else {
                     int available = MessageController.MESSAGE_MAX_LENGTH - (fb.getDocument().getLength() - length);
-                    if (available > 0) super.replace(fb, offset, length, text.substring(0, available), attrs);
+                    if (available > 0) {
+                        super.replace(fb, offset, length, text.substring(0, available), attrs);
+                        if (!updatingStyles) highlightMentions();
+                    }
                 }
+            }
+
+            @Override
+            public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+                super.remove(fb, offset, length);
+                if (!updatingStyles) highlightMentions();
             }
         });
 
@@ -103,6 +118,49 @@ public class MessageInputView extends JPanel {
 
         add(scroll, BorderLayout.CENTER);
         add(sendButton, BorderLayout.EAST);
+    }
+
+    /**
+     * Colorise en bleu toutes les occurrences de @tag dans le texte
+     * (tags des utilisateurs disponibles pour la mention).
+     */
+    private void highlightMentions() {
+        StyledDocument doc = inputArea.getStyledDocument();
+        String text = inputArea.getText();
+
+        // Style par défaut (noir)
+        Style defaultStyle = inputArea.addStyle("default", null);
+        StyleConstants.setForeground(defaultStyle, Color.BLACK);
+        StyleConstants.setFontSize(defaultStyle, 13);
+
+        // Style mention (bleu + gras)
+        Style mentionStyle = inputArea.addStyle("mention", null);
+        StyleConstants.setForeground(mentionStyle, MENTION_COLOR);
+        StyleConstants.setBold(mentionStyle, true);
+        StyleConstants.setFontSize(mentionStyle, 13);
+
+        updatingStyles = true;
+        try {
+            // Remettre tout en noir
+            doc.setCharacterAttributes(0, text.length(), defaultStyle, true);
+
+            // Récupérer les tags connus
+            Set<User> available = messageInputController.getAvailableUsersForMention();
+            if (available == null || available.isEmpty()) return;
+
+            // Construire un pattern @tag1|@tag2|...
+            String tagPattern = available.stream()
+                    .map(u -> Pattern.quote("@" + u.getUserTag()))
+                    .collect(Collectors.joining("|"));
+            Pattern pattern = Pattern.compile("(" + tagPattern + ")(?=\\s|$)", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(text);
+
+            while (matcher.find()) {
+                doc.setCharacterAttributes(matcher.start(), matcher.end() - matcher.start(), mentionStyle, true);
+            }
+        } finally {
+            updatingStyles = false;
+        }
     }
 
     /**
@@ -157,7 +215,7 @@ public class MessageInputView extends JPanel {
             mentionPopup.add(item);
         }
 
-        // Afficher le popup sous le curseur dans le textArea
+        // Afficher le popup sous le curseur dans le textPane
         try {
             Rectangle rect = inputArea.modelToView(inputArea.getCaretPosition());
             mentionPopup.show(inputArea, rect.x, rect.y + rect.height);
@@ -181,7 +239,7 @@ public class MessageInputView extends JPanel {
         String after = text.substring(atIndex + 1 + partial.length());
         String newText = before + "@" + tag + " " + after;
         inputArea.setText(newText);
-        inputArea.setCaretPosition(before.length() + tag.length() + 2); // après @tag + espace
+        inputArea.setCaretPosition(Math.min(before.length() + tag.length() + 2, newText.length()));
         hideMentionPopup();
     }
 

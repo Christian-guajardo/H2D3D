@@ -8,6 +8,7 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Composant graphique d'un seul message.
@@ -91,7 +92,7 @@ public class MessageComponent extends JPanel {
 
         // Corps
         JLabel textLabel = new JLabel("<html><body style='width:100%'>"
-                + escapeHtml(message.getText()) + "</body></html>");
+                + formatMessageHtml(message.getText()) + "</body></html>");
         textLabel.setFont(textLabel.getFont().deriveFont(Font.PLAIN, 13f));
         textLabel.setForeground(Color.DARK_GRAY);
         textLabel.setOpaque(true);
@@ -112,11 +113,21 @@ public class MessageComponent extends JPanel {
         return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
     }
 
+    private static final Pattern MENTION_PATTERN = Pattern.compile("(@\\w+)");
+    private static final String MENTION_COLOR_HEX = "2F80ED";
+
     private static String escapeHtml(String text) {
         if (text == null) return "";
         return text.replace("&", "&amp;")
                    .replace("<", "&lt;")
                    .replace(">", "&gt;")
                    .replace("\n", "<br>");
+    }
+
+    /** Échappe le HTML puis entoure chaque @mention d'un span bleu gras. */
+    private static String formatMessageHtml(String text) {
+        String escaped = escapeHtml(text);
+        return MENTION_PATTERN.matcher(escaped)
+                .replaceAll("<span style='color:#" + MENTION_COLOR_HEX + ";font-weight:bold'>$1</span>");
     }
 }
