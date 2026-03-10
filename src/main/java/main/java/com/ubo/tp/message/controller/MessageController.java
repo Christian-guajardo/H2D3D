@@ -9,6 +9,7 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.template.component.MessageListView;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,17 +31,12 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
         messageListView.refreshMessage(messages);
     }
 
-    public void sendMessage(String text){
+    public void sendMessage(String text) {
         mDataManager.sendMessage(new Message(session.getConnectedUser(), selectedObject.getUuid(), text));
     }
 
-    public AbstractMessageAppObject getSelectedObject() {
-        return selectedObject;
-    }
-
-    public void setSelectedObject(AbstractMessageAppObject selectedObject) {
-        this.selectedObject = selectedObject;
-    }
+    public AbstractMessageAppObject getSelectedObject() { return selectedObject; }
+    public void setSelectedObject(AbstractMessageAppObject selectedObject) { this.selectedObject = selectedObject; }
 
     @Override
     public void notify(AbstractMessageAppObject selectedObject) {
@@ -48,26 +44,18 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
         refreshMessages();
     }
 
-    public Set<Message> getCurrentMessages(){
-        if (selectedObject == null) {
-            return new HashSet<>();
-        }
-        if (selectedObject instanceof User) {
-            return getMessagesForUser();
-        } else if (selectedObject instanceof Channel) {
-            return getMessagesForChannel();
-        }
+    public Set<Message> getCurrentMessages() {
+        if (selectedObject == null) return new HashSet<>();
+        if (selectedObject instanceof User) return getMessagesForUser();
+        if (selectedObject instanceof Channel) return getMessagesForChannel();
         return new HashSet<>();
     }
 
     private Set<Message> getMessagesForUser() {
         Set<Message> messages = new HashSet<>();
-        if (session.getConnectedUser() == null) {
-            return messages;
-        }
         for (Message message : mDataManager.getMessages()) {
             if (message.getRecipient().equals(selectedObject.getUuid()) && message.getSender().equals(session.getConnectedUser())
-            ||  message.getRecipient().equals(session.getConnectedUser().getUuid()) && message.getSender().equals((User) selectedObject)) {
+                    ||  message.getRecipient().equals(session.getConnectedUser().getUuid()) && message.getSender().equals((User) selectedObject)) {
                 messages.add(message);
             }
         }
@@ -84,13 +72,11 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
         return messages;
     }
 
-    public MessageListView getMessageListView() {
-        return messageListView;
-    }
+    public MessageListView getMessageListView() { return messageListView; }
+
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
-        this.mDataManager.sendMessage(addedMessage);
         this.refreshMessages();
     }
 
@@ -101,60 +87,28 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
 
     @Override
     public void notifyMessageModified(Message modifiedMessage) {
-        this.mDataManager.sendMessage(modifiedMessage);
         this.refreshMessages();
     }
 
     @Override
-    public void notifyUserAdded(User addedUser) {
-
-    }
+    public void notifyUserAdded(User addedUser) {}
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
-        Set<Message> messagesToDelete = new HashSet<>();
-        for (Message message : mDataManager.getMessages()) {
-            if (message.getSender().equals(deletedUser) || message.getRecipient().equals(deletedUser.getUuid())) {
-                messagesToDelete.add(message);
-            }
-        }
         this.refreshMessages();
-
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
         this.refreshMessages();
-
     }
 
     @Override
-    public void notifyChannelAdded(Channel addedChannel) {
-
-    }
+    public void notifyChannelAdded(Channel addedChannel) {}
 
     @Override
-    public void notifyChannelDeleted(Channel deletedChannel) {
-        if (selectedObject instanceof Channel) {
-            if(selectedObject.getUuid().equals(deletedChannel.getUuid())) {
-                selectedObject = null;
-                this.refreshMessages();
-            }
-        }
-
-
-    }
+    public void notifyChannelDeleted(Channel deletedChannel) {}
 
     @Override
-    public void notifyChannelModified(Channel modifiedChannel) {
-        if (selectedObject instanceof Channel) {
-            if(selectedObject.getUuid().equals(modifiedChannel.getUuid())) {
-                if( ! modifiedChannel.getUsers().contains(session.getConnectedUser())) {
-                    selectedObject = null;
-                    this.refreshMessages();
-                }
-
-            }
-        }
-    }
+    public void notifyChannelModified(Channel modifiedChannel) {}
 }

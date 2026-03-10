@@ -5,32 +5,26 @@ import main.java.com.ubo.tp.message.datamodel.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 
 public class ChannelListView extends JPanel {
 
-    // --- Composants graphiques ---
     private final JPanel listPanel;
     private final JButton createButton;
-    private final List<ChannelComponent> channelComponents = new ArrayList<>();
+    private final List<ChannelComponent> channelComponents = new java.util.ArrayList<>();
 
-    // --- Callbacks vers le controller  ---
+    // Callbacks vers le controller (données pures, pas de Swing)
     private Consumer<Channel> onChannelSelected;
     private TriConsumer<String, Boolean, List<User>> onCreateChannel;
     private BiConsumer<Channel, List<User>> onManageMembers;
     private Consumer<Channel> onLeaveChannel;
     private Consumer<Channel> onDeleteChannel;
-
-    // --- Fournisseurs de données  ---
-    private Supplier<Set<User>> usersProvider;
-    private Supplier<User> connectedUserProvider;
+    // Appelé par le controller pour ouvrir le dialog de création avec les users disponibles
+    private Consumer<Channel> onManageMembersRequested;
 
     @FunctionalInterface
     public interface TriConsumer<A, B, C> {
@@ -60,8 +54,9 @@ public class ChannelListView extends JPanel {
         createButton.setPreferredSize(new Dimension(28, 24));
         createButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         createButton.setToolTipText("Créer un canal");
-        // La vue gère l'ouverture du dialog directement
-        createButton.addActionListener(e -> handleCreateChannel());
+        createButton.addActionListener(e -> {
+            if (onCreateChannel != null) openCreateDialog();
+        });
         header.add(createButton, BorderLayout.EAST);
 
         add(header, BorderLayout.NORTH);
@@ -83,20 +78,16 @@ public class ChannelListView extends JPanel {
     }
 
 
-
-    private void handleCreateChannel() {
+    public void openCreateDialog(Set<User> availableUsers) {
         Frame parent = getParentFrame();
-        Set<User> users = usersProvider != null ? usersProvider.get() : Set.of();
-
-        CreateChannelDialog.CreateChannelResult result = CreateChannelDialog.show(parent, users);
+        CreateChannelDialog.CreateChannelResult result = CreateChannelDialog.show(parent, availableUsers);
         if (result != null && onCreateChannel != null) {
             onCreateChannel.accept(result.name, result.isPrivate, result.members);
         }
     }
 
-    private void handleChannelOptions(Channel channel) {
-        User me = connectedUserProvider != null ? connectedUserProvider.get() : null;
-        boolean isCreator = me != null && channel.getCreator().equals(me);
+
+    public void openChannelOptions(Channel channel, boolean isCreator, Set<User> allUsers) {
         Frame parent = getParentFrame();
 
         if (isCreator) {
@@ -110,12 +101,22 @@ public class ChannelListView extends JPanel {
                     null, options, options[0]);
 
             if (choice == 0) {
-                handleManageMembers(channel, parent);
+                List<User> newMembers = ManageChannelMembersDialog.show(parent, channel, allUsers);
+                if (newMembers != null && onManageMembers != null) {
+                    onManageMembers.accept(channel, newMembers);
+                }
             } else if (choice == 1) {
-                handleDeleteChannel(channel, parent);
+                int confirm = JOptionPane.showConfirmDialog(
+                        parent,
+                        "Supprimer définitivement #" + channel.getName() + " ?",
+                        "Supprimer le canal",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                if (confirm == JOptionPane.YES_OPTION && onDeleteChannel != null) {
+                    onDeleteChannel.accept(channel);
+                }
             }
         } else {
-            // Membre simple : quitter uniquement
             int confirm = JOptionPane.showConfirmDialog(
                     parent,
                     "Quitter le canal #" + channel.getName() + " ?",
@@ -127,30 +128,14 @@ public class ChannelListView extends JPanel {
         }
     }
 
-    private void handleManageMembers(Channel channel, Frame parent) {
-        Set<User> allUsers = usersProvider != null ? usersProvider.get() : Set.of();
-        List<User> newMembers = ManageChannelMembersDialog.show(parent, channel, allUsers);
-        if (newMembers != null && onManageMembers != null) {
-            onManageMembers.accept(channel, newMembers);
-        }
+    private void openCreateDialog() {
+
+        if (onCreateChannelRequested != null) onCreateChannelRequested.run();
     }
 
-    private void handleDeleteChannel(Channel channel, Frame parent) {
-        int confirm = JOptionPane.showConfirmDialog(
-                parent,
-                "Supprimer définitivement #" + channel.getName() + " ?",
-                "Supprimer le canal",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
-        if (confirm == JOptionPane.YES_OPTION && onDeleteChannel != null) {
-            onDeleteChannel.accept(channel);
-        }
-    }
+    private Runnable onCreateChannelRequested;
+    public void setOnCreateChannelRequested(Runnable r) { this.onCreateChannelRequested = r; }
 
-    private Frame getParentFrame() {
-        Window w = SwingUtilities.getWindowAncestor(this);
-        return w instanceof Frame ? (Frame) w : null;
-    }
 
 
     public void refreshChannel(Set<Channel> channels) {
@@ -165,11 +150,9 @@ public class ChannelListView extends JPanel {
     private void addChannelRow(Channel channel) {
         ChannelComponent comp = new ChannelComponent(channel);
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, comp.getPreferredSize().height));
-
         if (onChannelSelected != null) comp.addSelectListener(onChannelSelected);
-        // Le bouton ⚙ déclenche handleChannelOptions (dialogs gérés ici)
-        comp.addManageMembersListener(this::handleChannelOptions);
-
+        // Le bouton ⚙ notifie le controller qui rappelle openChannelOptions avec les bonnes données
+        comp.addManageMembersListener(c -> { if (onManageMembersRequested != null) onManageMembersRequested.accept(c); });
         channelComponents.add(comp);
         listPanel.add(comp);
     }
@@ -187,47 +170,17 @@ public class ChannelListView extends JPanel {
         listPanel.repaint();
     }
 
-    // -------------------------------------------------------------------------
-    // Setters des callbacks (appelés par le controller)
-    // -------------------------------------------------------------------------
-
-    public void setOnChannelSelected(Consumer<Channel> listener) {
-        this.onChannelSelected = listener;
+    private Frame getParentFrame() {
+        Window w = SwingUtilities.getWindowAncestor(this);
+        return w instanceof Frame ? (Frame) w : null;
     }
 
-    public void setOnCreateChannel(TriConsumer<String, Boolean, List<User>> listener) {
-        this.onCreateChannel = listener;
-    }
 
-    public void setOnManageMembers(BiConsumer<Channel, List<User>> listener) {
-        this.onManageMembers = listener;
-    }
 
-    public void setOnLeaveChannel(Consumer<Channel> listener) {
-        this.onLeaveChannel = listener;
-    }
-
-    public void setOnDeleteChannel(Consumer<Channel> listener) {
-        this.onDeleteChannel = listener;
-    }
-
-    public void setUsersProvider(Supplier<Set<User>> provider) {
-        this.usersProvider = provider;
-    }
-
-    public void setConnectedUserProvider(Supplier<User> provider) {
-        this.connectedUserProvider = provider;
-    }
-
-    /** @deprecated Utiliser setOnChannelSelected() */
-    @Deprecated
-    public void addCreateChannelListener(ActionListener listener) {
-        // no-op : géré en interne désormais
-    }
-
-    /** @deprecated Utiliser setOnChannelSelected() */
-    @Deprecated
-    public void addChannelSelectionListener(Consumer<Channel> listener) {
-        this.onChannelSelected = listener;
-    }
+    public void setOnChannelSelected(Consumer<Channel> listener) { this.onChannelSelected = listener; }
+    public void setOnCreateChannel(TriConsumer<String, Boolean, List<User>> listener) { this.onCreateChannel = listener; }
+    public void setOnManageMembers(BiConsumer<Channel, List<User>> listener) { this.onManageMembers = listener; }
+    public void setOnLeaveChannel(Consumer<Channel> listener) { this.onLeaveChannel = listener; }
+    public void setOnDeleteChannel(Consumer<Channel> listener) { this.onDeleteChannel = listener; }
+    public void setOnManageMembersRequested(Consumer<Channel> listener) { this.onManageMembersRequested = listener; }
 }
