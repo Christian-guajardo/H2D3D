@@ -110,5 +110,7 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     public void notifyChannelDeleted(Channel deletedChannel) {}
 
     @Override
-    public void notifyChannelModified(Channel modifiedChannel) {}
+    public void notifyChannelModified(Channel modifiedChannel) {
+
+    }
 }

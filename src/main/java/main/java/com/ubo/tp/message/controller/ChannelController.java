@@ -71,7 +71,7 @@ public class ChannelController implements IDatabaseObserver {
                 ))
         );
 
-        // Quitter
+
         this.channelListView.setOnLeaveChannel(channel -> {
             List<User> newMembers = channel.getUsers().stream()
                     .filter(u -> !u.equals(session.getConnectedUser()))
@@ -83,9 +83,10 @@ public class ChannelController implements IDatabaseObserver {
                     newMembers,
                     channel.isPrivate()
             ));
+
         });
 
-       this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
+       this.channelListView.setOnDeleteChannel(mDataManager::deleteChannel);
     }
 
     private Set<User> getAvailableUsers() {
