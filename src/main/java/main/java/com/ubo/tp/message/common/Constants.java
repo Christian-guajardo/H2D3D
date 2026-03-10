@@ -60,4 +60,9 @@ public class Constants {
 	 */
 	public static final User UNKNOWN_USER = new User(Constants.UNKNONWN_USER_UUID, "<Inconnu>", "--", "<Inconnu>");
 
+	/**
+	 * Contenu d'un message supprimé.
+	 */
+	public static final String DELETED_MESSAGE_CONTENT = "<Message supprimé>";
+
 }

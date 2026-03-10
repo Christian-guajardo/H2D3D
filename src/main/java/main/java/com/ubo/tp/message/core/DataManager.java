@@ -3,6 +3,7 @@ package main.java.com.ubo.tp.message.core;
 import java.util.HashSet;
 import java.util.Set;
 
+import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.database.EntityManager;
 import main.java.com.ubo.tp.message.core.database.IDatabase;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
@@ -179,6 +180,12 @@ public class DataManager {
 		}
 
 		return userMessages;
+	}
+
+	public void deleteMessage(Message message) {
+		Message messageToDelete = message;
+		messageToDelete.setText(Constants.DELETED_MESSAGE_CONTENT);
+		this.mEntityManager.deleteMessageFile(messageToDelete);
 	}
 
 

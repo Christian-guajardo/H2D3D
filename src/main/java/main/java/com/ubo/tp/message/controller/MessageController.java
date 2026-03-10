@@ -24,6 +24,10 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
         this.mDataManager = mDataManager;
         this.session = session;
         this.messageListView = new MessageListView();
+        this.messageListView.setDeleteContext(
+                session::getConnectedUser,
+                mDataManager::deleteMessage
+        );
     }
 
     public void refreshMessages() {

@@ -506,4 +506,13 @@ public class EntityManager implements IWatchableDirectoryObserver {
 			throw new RuntimeException("Fichier du canal introuvable : " + filePath);
 		}
 	}
+
+	public void deleteMessageFile(Message message) {
+		if (mDirectoryPath != null) {
+			// Génération du fichier de propriété
+			mDataFileManager.writeMessageFile(message);
+		} else {
+			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
+		}
+	}
 }

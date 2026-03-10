@@ -1,11 +1,14 @@
 package main.java.com.ubo.tp.message.ihm.template.component;
 
 import main.java.com.ubo.tp.message.datamodel.Message;
+import main.java.com.ubo.tp.message.datamodel.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Composant graphique de la liste des messages.
@@ -13,6 +16,10 @@ import java.util.List;
  */
 public class MessageListView extends JPanel {
     private final JPanel listPanel;
+    /** Fournit l'utilisateur connecté au moment du rendu. */
+    private Supplier<User> connectedUserSupplier;
+    /** Callback de suppression — transmis à chaque MessageComponent. */
+    private Consumer<Message> onDelete;
 
     public MessageListView() {
         super(new BorderLayout());
@@ -37,13 +44,20 @@ public class MessageListView extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
+    /** Définit le fournisseur d'utilisateur connecté et le callback de suppression. */
+    public void setDeleteContext(Supplier<User> connectedUserSupplier, Consumer<Message> onDelete) {
+        this.connectedUserSupplier = connectedUserSupplier;
+        this.onDelete = onDelete;
+    }
+
     /** Remplace toute la liste et trie par date croissante. */
     public void refreshMessage(Set<Message> messages) {
         listPanel.removeAll();
+        User current = connectedUserSupplier != null ? connectedUserSupplier.get() : null;
         List<Message> sorted = new ArrayList<>(messages);
         sorted.sort(Comparator.comparingLong(Message::getEmissionDate));
         for (Message m : sorted) {
-            listPanel.add(new MessageComponent(m));
+            listPanel.add(new MessageComponent(m, current, onDelete));
         }
         // Pousse les messages vers le haut
         listPanel.add(Box.createVerticalGlue());
@@ -59,7 +73,8 @@ public class MessageListView extends JPanel {
         if (count > 0 && listPanel.getComponent(count - 1) instanceof Box.Filler) {
             listPanel.remove(count - 1);
         }
-        listPanel.add(new MessageComponent(message));
+        User current = connectedUserSupplier != null ? connectedUserSupplier.get() : null;
+        listPanel.add(new MessageComponent(message, current, onDelete));
         listPanel.add(Box.createVerticalGlue());
         listPanel.revalidate();
         listPanel.repaint();
