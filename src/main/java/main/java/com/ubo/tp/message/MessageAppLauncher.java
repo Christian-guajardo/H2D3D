@@ -11,7 +11,7 @@ import mock.MessageAppMock;
 public class MessageAppLauncher {
 	protected static boolean IS_MOCK_ENABLED = true;
 
-	public static void main(String[] args) {
+	public static void launchApp(){
 		Database database = new Database();
 		EntityManager entityManager = new EntityManager(database);
 		DataManager dataManager = new DataManager(database, entityManager);
@@ -29,5 +29,10 @@ public class MessageAppLauncher {
 		MessageApp messageApp = new MessageApp(dataManager);
 		messageApp.init();
 		messageApp.show();
+	}
+
+	public static void main(String[] args) {
+		launchApp();
+		launchApp();
 	}
 }
