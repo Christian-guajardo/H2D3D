@@ -19,7 +19,6 @@ public class UserListView extends JPanel {
     private final List<UserComponent> userComponents = new ArrayList<>();
     // user list non filtree
     private Set<User> allUsers = new HashSet<>();
-    /** Listeners en attente, ré-attachés à chaque refresh/filtre. */
     private final List<Consumer<User>> selectListeners = new ArrayList<>();
 
     public UserListView() {
@@ -27,7 +26,7 @@ public class UserListView extends JPanel {
         setOpaque(true);
         setBackground(new Color(0x474747));
 
-        // --- Header : titre + champ de recherche ---
+        // entête -> titre
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setOpaque(true);
@@ -42,6 +41,7 @@ public class UserListView extends JPanel {
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(title);
 
+        // champ de recherche
         searchField = new JTextField();
         searchField.setToolTipText("Rechercher un utilisateur...");
         searchField.putClientProperty("JTextField.placeholderText", "Rechercher...");
@@ -140,10 +140,6 @@ public class UserListView extends JPanel {
     }
 
     public void clear() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(this::clear);
-            return;
-        }
         allUsers.clear();
         searchField.setText("");
         listPanel.removeAll();

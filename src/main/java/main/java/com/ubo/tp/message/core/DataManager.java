@@ -193,4 +193,8 @@ public class DataManager {
 		mWatchableDirectory.initWatching();
 		mWatchableDirectory.addObserver(mEntityManager);
 	}
+
+	public void modifyMessageFile(Message message) {
+		this.mEntityManager.modifyMessageFile(message);
+	}
 }

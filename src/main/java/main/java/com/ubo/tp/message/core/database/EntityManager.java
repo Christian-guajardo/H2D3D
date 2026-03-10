@@ -438,6 +438,18 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	}
 
 	/**
+	 * Modification d'un message dans le fichier correspondant.
+	 */
+	public void modifyMessageFile(Message message) {
+		if (mDirectoryPath != null) {
+			// Modification du fichier de propriété
+			mDataFileManager.modifyMessageFile(message);
+		} else {
+			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
+		}
+	}
+
+	/**
 	 * Génération du fichier correspondant à l'utilisateur.
 	 *
 	 * @param user

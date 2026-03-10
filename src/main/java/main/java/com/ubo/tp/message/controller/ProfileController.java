@@ -1,5 +1,6 @@
 package main.java.com.ubo.tp.message.controller;
 
+import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
@@ -7,6 +8,9 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.Response;
 import main.java.com.ubo.tp.message.datamodel.User;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class ProfileController implements IDatabaseObserver {
 
@@ -45,12 +49,6 @@ public class ProfileController implements IDatabaseObserver {
         return session.getConnectedUser();
     }
 
-    /**
-     * Supprime le compte de l'utilisateur connecté.
-     * Déconnecte la session puis supprime le fichier physique.
-     *
-     * @return une Response indiquant le succès ou l'échec.
-     */
     public Response onDeleteAccount() {
         User connectedUser = session.getConnectedUser();
 
@@ -62,9 +60,23 @@ public class ProfileController implements IDatabaseObserver {
         connectedUser.setOnline(false);
         session.disconnect();
 
-        // Suppression du fichier physique (le WatchableDirectory met à jour la DB)
+        Set<Message> messages = dataManager.getMessagesFrom(connectedUser);
+        for (Message message : messages) {
+            message.setSender(Constants.UNKNOWN_USER);
+        }
+        dataManager.getMessagesFrom(connectedUser)
+                .forEach(message -> {
+                    message.setSender(Constants.UNKNOWN_USER);
+                    dataManager.modifyMessageFile(message);
+                });
+        // Suppression du fichier physique
         boolean deleted = dataManager.deleteUser(connectedUser);
         if (!deleted) {
+            dataManager.getMessagesFrom(connectedUser)
+                    .forEach(message -> {
+                        message.setSender(connectedUser);
+                        dataManager.modifyMessageFile(message);
+                    });
             return new Response(false, "Impossible de supprimer le compte : fichier introuvable ou erreur de suppression.");
         }
 
