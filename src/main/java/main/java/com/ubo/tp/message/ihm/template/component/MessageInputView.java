@@ -25,7 +25,6 @@ public class MessageInputView extends JPanel {
     /** Popup d'autocomplétion @ */
     private JPopupMenu mentionPopup;
 
-    /** Flag pour éviter une boucle infinie lors de la recolorisation. */
     private boolean updatingStyles = false;
 
     public MessageInputView(MessageInputController messageInputController) {
@@ -120,20 +119,14 @@ public class MessageInputView extends JPanel {
         add(sendButton, BorderLayout.EAST);
     }
 
-    /**
-     * Colorise en bleu toutes les occurrences de @tag dans le texte
-     * (tags des utilisateurs disponibles pour la mention).
-     */
     private void highlightMentions() {
         StyledDocument doc = inputArea.getStyledDocument();
         String text = inputArea.getText();
 
-        // Style par défaut (noir)
         Style defaultStyle = inputArea.addStyle("default", null);
         StyleConstants.setForeground(defaultStyle, Color.BLACK);
         StyleConstants.setFontSize(defaultStyle, 13);
 
-        // Style mention (bleu + gras)
         Style mentionStyle = inputArea.addStyle("mention", null);
         StyleConstants.setForeground(mentionStyle, MENTION_COLOR);
         StyleConstants.setBold(mentionStyle, true);
@@ -141,14 +134,11 @@ public class MessageInputView extends JPanel {
 
         updatingStyles = true;
         try {
-            // Remettre tout en noir
             doc.setCharacterAttributes(0, text.length(), defaultStyle, true);
 
-            // Récupérer les tags connus
             Set<User> available = messageInputController.getAvailableUsersForMention();
             if (available == null || available.isEmpty()) return;
 
-            // Construire un pattern @tag1|@tag2|...
             String tagPattern = available.stream()
                     .map(u -> Pattern.quote("@" + u.getUserTag()))
                     .collect(Collectors.joining("|"));
@@ -250,9 +240,9 @@ public class MessageInputView extends JPanel {
             inputArea.setText("");
         } else {
             JOptionPane.showMessageDialog(this,
-                    "Le message doit contenir entre 1 et " + MessageController.MESSAGE_MAX_LENGTH + " caractères.",
-                    "Message invalide",
-                    JOptionPane.WARNING_MESSAGE);
+                "Le message doit contenir entre 1 et " + MessageController.MESSAGE_MAX_LENGTH + " caractères.",
+                "Message invalide",
+                JOptionPane.WARNING_MESSAGE);
         }
     }
 
