@@ -4,6 +4,7 @@ import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.Selection;
+import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
@@ -15,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ChannelController implements IDatabaseObserver {
+public class ChannelController implements IDatabaseObserver, ISessionObserver {
     private final DataManager mDataManager;
     private final Selection selection;
     private final ChannelListView channelListView;
@@ -31,13 +32,18 @@ public class ChannelController implements IDatabaseObserver {
         this.session = session;
         this.channelListView = new ChannelListView();
 
-        // Sélection d'un canal
+
         this.channelListView.setOnChannelSelected(channel -> {
             selection.changeSelection(channel);
             channelListView.setSelectedChannel(channel);
         });
 
-        // Création : la vue ouvre le dialog, renvoie (name, isPrivate, members)
+
+        this.channelListView.setOnCreateChannelRequested(() ->
+                channelListView.openCreateDialog(getAvailableUsers())
+        );
+
+
         this.channelListView.setOnCreateChannel((name, isPrivate, members) ->
                 mDataManager.sendChannel(new Channel(
                         UUID.randomUUID(),
@@ -48,7 +54,14 @@ public class ChannelController implements IDatabaseObserver {
                 ))
         );
 
-        // Gestion membres : la vue ouvre le dialog, renvoie la nouvelle liste
+
+        this.channelListView.setOnManageMembersRequested(channel -> {
+            User me = session.getConnectedUser();
+            boolean isCreator = channel.getCreator().equals(me);
+            channelListView.openChannelOptions(channel, isCreator, getAvailableUsers());
+        });
+
+
         this.channelListView.setOnManageMembers((channel, newMembers) ->
                 mDataManager.sendChannel(new Channel(
                         channel.getUuid(),
@@ -59,7 +72,7 @@ public class ChannelController implements IDatabaseObserver {
                 ))
         );
 
-        // Quitter un canal
+        // Quitter
         this.channelListView.setOnLeaveChannel(channel -> {
             List<User> newMembers = channel.getUsers().stream()
                     .filter(u -> !u.equals(session.getConnectedUser()))
@@ -73,28 +86,16 @@ public class ChannelController implements IDatabaseObserver {
             ));
         });
 
-        // Supprimer un canal (créateur uniquement — la vue vérifie déjà via connectedUserProvider)
-        this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
-
-        // Fournisseurs de données pour que la vue peuple ses dialogs sans connaître le controller
-        this.channelListView.setUsersProvider(() ->
-                mDataManager.getUsers().stream()
-                        .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
-                        .filter(u -> !u.equals(session.getConnectedUser()))
-                        .collect(Collectors.toSet())
-        );
-        this.channelListView.setConnectedUserProvider(() -> session.getConnectedUser());
-
-        this.channelListView.refreshChannel(getFilteredChannels());
+       //this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
     }
 
-    /**
-     * - Créateur : voit toujours son canal
-     * - Canal privé : seulement si l'user est dans la liste des membres
-     * - Canal public : visible par tous
-     *
-     * FIX: guard null sur me (au login la session peut ne pas encore être établie)
-     */
+    private Set<User> getAvailableUsers() {
+        return mDataManager.getUsers().stream()
+                .filter(u -> !u.getUuid().equals(Constants.UNKNONWN_USER_UUID))
+                .filter(u -> !u.equals(session.getConnectedUser()))
+                .collect(Collectors.toSet());
+    }
+
     public Set<Channel> getFilteredChannels() {
         User me = session.getConnectedUser();
         if (me == null) return Set.of();
@@ -105,6 +106,16 @@ public class ChannelController implements IDatabaseObserver {
                     return true; // public
                 })
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void notifyLogin(User connectedUser) {
+        this.channelListView.refreshChannel(getFilteredChannels());
+    }
+
+    @Override
+    public void notifyLogout() {
+        this.channelListView.refreshChannel(Set.of());
     }
 
     @Override public void notifyMessageAdded(Message addedMessage) {}
