@@ -42,6 +42,10 @@ public class MessageAppMainController {
         dataManager.addObserver(channelController);
         dataManager.addObserver(messageController);
 
+        // Désélection croisée : sélectionner un user déselectionne le channel et vice-versa
+        userController.setOnUserSelected(() -> channelController.getChannelListView().clearSelection());
+        channelController.setOnChannelSelected(() -> userController.getUserListView().clearSelection());
+
         session.addObserver(this.navigationController);
         selection.addObserver(this.messageController);
         selection.addObserver(this.messageInputController);

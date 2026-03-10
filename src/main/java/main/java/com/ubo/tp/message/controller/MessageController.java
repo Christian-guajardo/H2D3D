@@ -110,5 +110,10 @@ public class MessageController implements ISelectionObserver, IDatabaseObserver 
     public void notifyChannelDeleted(Channel deletedChannel) {}
 
     @Override
-    public void notifyChannelModified(Channel modifiedChannel) {}
+    public void notifyChannelModified(Channel modifiedChannel) {
+        if(!modifiedChannel.getUsers().contains(session.getConnectedUser())){
+            this.selectedObject = null;
+        }
+        this.refreshMessages();
+    }
 }

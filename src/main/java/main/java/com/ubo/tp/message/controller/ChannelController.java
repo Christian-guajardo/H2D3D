@@ -20,6 +20,12 @@ public class ChannelController implements IDatabaseObserver {
     private final Selection selection;
     private final ChannelListView channelListView;
     private final Session session;
+    /** Appelé quand un channel est sélectionné — permet de vider la sélection user */
+    private Runnable onChannelSelected;
+
+    public void setOnChannelSelected(Runnable callback) {
+        this.onChannelSelected = callback;
+    }
 
     public ChannelListView getChannelListView() {
         return channelListView;
@@ -31,10 +37,10 @@ public class ChannelController implements IDatabaseObserver {
         this.session = session;
         this.channelListView = new ChannelListView();
 
-
         this.channelListView.setOnChannelSelected(channel -> {
             selection.changeSelection(channel);
             channelListView.setSelectedChannel(channel);
+            if (onChannelSelected != null) onChannelSelected.run();
         });
 
 

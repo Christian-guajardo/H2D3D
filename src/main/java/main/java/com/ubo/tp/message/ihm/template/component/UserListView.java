@@ -124,6 +124,12 @@ public class UserListView extends JPanel {
         }
     }
 
+    public void clearSelection() {
+        for (UserComponent comp : userComponents) {
+            comp.setSelected(false);
+        }
+    }
+
     public void addUserSelectListener(Consumer<User> listener) {
         selectListeners.add(listener);
         for (UserComponent userComponent : userComponents) {

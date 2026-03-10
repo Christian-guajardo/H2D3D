@@ -163,6 +163,12 @@ public class ChannelListView extends JPanel {
         }
     }
 
+    public void clearSelection() {
+        for (ChannelComponent comp : channelComponents) {
+            comp.setSelected(false);
+        }
+    }
+
     public void clear() {
         listPanel.removeAll();
         channelComponents.clear();

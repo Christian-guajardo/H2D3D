@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -15,9 +17,9 @@ public class UserComponent extends JPanel {
 
     private static final Color BG_DEFAULT   = Color.WHITE;
     private static final Color BG_HOVER     = new Color(0xF5F5F5);
-    private static final Color BG_SELECTED  = new Color(0xD6EAFF);
+    private static final Color BG_SELECTED  = new Color(0x5C7A9A);
 
-    private Consumer<User> onSelect;
+    private final List<Consumer<User>> selectListeners = new ArrayList<>();
     private final User user;
     private boolean selected;
 
@@ -77,7 +79,7 @@ public class UserComponent extends JPanel {
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
-                if (onSelect != null) onSelect.accept(user);
+                selectListeners.forEach(l -> l.accept(user));
             }
             @Override public void mouseEntered(MouseEvent e) {
                 if (!selected) setBackground(BG_HOVER);
@@ -107,7 +109,7 @@ public class UserComponent extends JPanel {
      * Le contrôleur s'abonne ici. La vue ne connaît pas le contrôleur.
      */
     public void addSelectListener(Consumer<User> listener) {
-        this.onSelect = listener;
+        this.selectListeners.add(listener);
     }
 
     private String getInitials(User user) {
