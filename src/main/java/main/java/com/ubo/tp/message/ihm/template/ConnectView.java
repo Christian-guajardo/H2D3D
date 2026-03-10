@@ -35,6 +35,8 @@ public class ConnectView extends JPanel {
         setOpaque(true);
         setBackground(Color.WHITE);
         initGui();
+
+
     }
 
     private void initGui() {

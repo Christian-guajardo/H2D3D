@@ -84,8 +84,6 @@ public class ChannelController implements IDatabaseObserver {
                         .collect(Collectors.toSet())
         );
         this.channelListView.setConnectedUserProvider(() -> session.getConnectedUser());
-
-        this.channelListView.refreshChannel(getFilteredChannels());
     }
 
     /**
@@ -105,6 +103,10 @@ public class ChannelController implements IDatabaseObserver {
                     return true; // public
                 })
                 .collect(Collectors.toSet());
+    }
+
+    public void refreshChannels(){
+        this.channelListView.refreshChannel(this.getFilteredChannels());
     }
 
     @Override public void notifyMessageAdded(Message addedMessage) {}

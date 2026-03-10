@@ -32,8 +32,8 @@ public class NavigationController implements ISessionObserver {
         this.registerController = registerController;
         this.connectController = connectController;
         this.profileController = profileController;
-        dataManager.setExchangeDirectory("C:\\Users\\chnun\\Documents\\Joie");
-       // dataManager.setExchangeDirectory("C:\\Users\\sully\\Documents\\test");
+        //dataManager.setExchangeDirectory("C:\\Users\\chnun\\Documents\\Joie");
+        dataManager.setExchangeDirectory("C:\\Users\\sully\\Documents\\test");
         attachListeners();
     }
 
@@ -77,6 +77,7 @@ public class NavigationController implements ISessionObserver {
                 connectController.getMessageController().getMessageListView(),
                 messageInputView, connectController);
         mainView.showConnectedState(connectView);
+        connectController.getChannelController().refreshChannels();
     }
 
     @Override
