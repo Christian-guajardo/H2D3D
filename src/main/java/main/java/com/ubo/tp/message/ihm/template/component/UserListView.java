@@ -6,11 +6,9 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class UserListView extends JPanel {
 
@@ -127,6 +125,16 @@ public class UserListView extends JPanel {
     public void clearSelection() {
         for (UserComponent comp : userComponents) {
             comp.setSelected(false);
+        }
+    }
+
+    /** Met à jour le badge de notification pour l'utilisateur donné. */
+    public void setNotificationCount(User user, int count) {
+        for (UserComponent comp : userComponents) {
+            if (comp.getUser().equals(user)) {
+                comp.setNotificationCount(count);
+                break;
+            }
         }
     }
 

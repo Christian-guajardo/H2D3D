@@ -77,7 +77,6 @@ public class ChannelController implements IDatabaseObserver {
                 ))
         );
 
-
         this.channelListView.setOnLeaveChannel(channel -> {
             List<User> newMembers = channel.getUsers().stream()
                     .filter(u -> !u.equals(session.getConnectedUser()))

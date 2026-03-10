@@ -4,6 +4,8 @@ import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.User;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.List;
 import java.util.Set;
@@ -15,15 +17,18 @@ public class ChannelListView extends JPanel {
 
     private final JPanel listPanel;
     private final JButton createButton;
+    private final JTextField searchField;
     private final List<ChannelComponent> channelComponents = new java.util.ArrayList<>();
+    // liste complète non filtrée
+    private Set<Channel> allChannels = new java.util.HashSet<>();
+    private User connectedUser;
 
-    // Callbacks vers le controller (données pures, pas de Swing)
+    // Callbacks vers le controller
     private Consumer<Channel> onChannelSelected;
     private TriConsumer<String, Boolean, List<User>> onCreateChannel;
     private BiConsumer<Channel, List<User>> onManageMembers;
     private Consumer<Channel> onLeaveChannel;
     private Consumer<Channel> onDeleteChannel;
-    // Appelé par le controller pour ouvrir le dialog de création avec les users disponibles
     private Consumer<Channel> onManageMembersRequested;
 
     @FunctionalInterface
@@ -36,15 +41,20 @@ public class ChannelListView extends JPanel {
         setOpaque(true);
         setBackground(new Color(0x2C2C2C));
 
-        JPanel header = new JPanel(new BorderLayout(5, 0));
+        JPanel header = new JPanel();
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setOpaque(true);
         header.setBackground(new Color(0x2C2C2C));
-        header.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        header.setBorder(BorderFactory.createEmptyBorder(8, 10, 4, 10));
+
+        // Ligne titre + bouton +
+        JPanel titleRow = new JPanel(new BorderLayout(5, 0));
+        titleRow.setOpaque(false);
 
         JLabel title = new JLabel("Canaux");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 13f));
         title.setForeground(Color.WHITE);
-        header.add(title, BorderLayout.WEST);
+        titleRow.add(title, BorderLayout.WEST);
 
         createButton = new JButton("+");
         createButton.setFont(createButton.getFont().deriveFont(Font.BOLD, 14f));
@@ -57,7 +67,23 @@ public class ChannelListView extends JPanel {
         createButton.addActionListener(e -> {
             if (onCreateChannel != null) openCreateDialog();
         });
-        header.add(createButton, BorderLayout.EAST);
+        titleRow.add(createButton, BorderLayout.EAST);
+        header.add(titleRow);
+
+        // Champ de recherche
+        searchField = new JTextField();
+        searchField.setToolTipText("Rechercher un canal...");
+        searchField.putClientProperty("JTextField.placeholderText", "Rechercher...");
+        searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(4, 0, 4, 0),
+                searchField.getBorder()));
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { applyFilter(); }
+            @Override public void removeUpdate(DocumentEvent e) { applyFilter(); }
+            @Override public void changedUpdate(DocumentEvent e) { applyFilter(); }
+        });
+        header.add(searchField);
 
         add(header, BorderLayout.NORTH);
 
@@ -145,12 +171,31 @@ public class ChannelListView extends JPanel {
 
 
     public void refreshChannel(Set<Channel> channels, User connectedUser) {
+        this.allChannels = new java.util.HashSet<>(channels);
+        this.connectedUser = connectedUser;
+        applyFilter();
+    }
+
+    private void applyFilter() {
+        String query = searchField.getText().trim().toLowerCase();
+
         listPanel.removeAll();
         channelComponents.clear();
-        for (Channel c : channels) addChannelRow(c, connectedUser);
+
+        for (Channel c : allChannels) {
+            if (query.isEmpty() || matchesSearch(c, query)) {
+                addChannelRow(c, connectedUser);
+            }
+        }
+
         listPanel.add(Box.createVerticalGlue());
         listPanel.revalidate();
         listPanel.repaint();
+    }
+
+    private boolean matchesSearch(Channel channel, String query) {
+        String name = channel.getName() != null ? channel.getName().toLowerCase() : "";
+        return name.contains(query);
     }
 
     private void addChannelRow(Channel channel, User connectedUser) {

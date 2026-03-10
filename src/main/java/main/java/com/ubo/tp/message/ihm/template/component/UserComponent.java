@@ -15,13 +15,15 @@ import java.util.function.Consumer;
  */
 public class UserComponent extends JPanel {
 
-    private static final Color BG_DEFAULT   = Color.WHITE;
-    private static final Color BG_HOVER     = new Color(0xF5F5F5);
-    private static final Color BG_SELECTED  = new Color(0x5C7A9A);
+    private static final Color BG_DEFAULT  = Color.WHITE;
+    private static final Color BG_HOVER    = new Color(0xF5F5F5);
+    private static final Color BG_SELECTED = new Color(0x5C7A9A);
 
     private final List<Consumer<User>> selectListeners = new ArrayList<>();
     private final User user;
     private boolean selected;
+    private int notificationCount = 0;
+    private final JLabel badgeLabel;
 
     public User getUser() {
         return user;
@@ -37,6 +39,7 @@ public class UserComponent extends JPanel {
 
         Insets insets = new Insets(6, 8, 6, 8);
 
+        // Avatar
         JLabel avatar = new JLabel(getInitials(user));
         avatar.setOpaque(true);
         avatar.setBackground(new Color(0x2F80ED));
@@ -49,6 +52,7 @@ public class UserComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 insets, 0, 0));
 
+        // Nom
         JLabel nameLabel = new JLabel(user.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 13f));
         nameLabel.setOpaque(false);
@@ -57,6 +61,7 @@ public class UserComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
                 insets, 0, 0));
 
+        // Tag
         JLabel tagLabel = new JLabel("@" + user.getUserTag());
         tagLabel.setFont(tagLabel.getFont().deriveFont(Font.PLAIN, 11f));
         tagLabel.setForeground(Color.GRAY);
@@ -66,14 +71,35 @@ public class UserComponent extends JPanel {
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
                 insets, 0, 0));
 
+        // Panneau droit : badge + statut
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setOpaque(false);
+
+        badgeLabel = new JLabel("", SwingConstants.CENTER);
+        badgeLabel.setOpaque(true);
+        badgeLabel.setBackground(new Color(0xE74C3C));
+        badgeLabel.setForeground(Color.WHITE);
+        badgeLabel.setFont(badgeLabel.getFont().deriveFont(Font.BOLD, 10f));
+        badgeLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
+        badgeLabel.setVisible(false);
+        badgeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rightPanel.add(badgeLabel);
+
+        rightPanel.add(Box.createVerticalStrut(4));
+
         JLabel status = new JLabel();
         status.setOpaque(true);
         status.setPreferredSize(new Dimension(10, 10));
+        status.setMaximumSize(new Dimension(10, 10));
         status.setBackground(user.isOnline() ? new Color(0x2ECC71) : new Color(0x95A5A6));
         status.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true));
-        add(status, new GridBagConstraints(2, 0,
+        status.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rightPanel.add(status);
+
+        add(rightPanel, new GridBagConstraints(2, 0,
                 1, 2, 0, 0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 insets, 0, 0));
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -90,10 +116,28 @@ public class UserComponent extends JPanel {
         });
     }
 
-    /** Change l'état de sélection visuelle. */
+    /** Met à jour le badge de notification. 0 = badge caché. */
+    public void setNotificationCount(int count) {
+        this.notificationCount = count;
+        if (count > 0) {
+            badgeLabel.setText(count > 99 ? "99+" : String.valueOf(count));
+            badgeLabel.setVisible(true);
+        } else {
+            badgeLabel.setVisible(false);
+        }
+        revalidate();
+        repaint();
+    }
+
+    public int getNotificationCount() {
+        return notificationCount;
+    }
+
+    /** Change l'état de sélection visuelle et remet le badge à 0. */
     public void setSelected(boolean selected) {
         this.selected = selected;
         setBackground(selected ? BG_SELECTED : BG_DEFAULT);
+        if (selected) setNotificationCount(0);
     }
 
     public boolean isSelected() {
@@ -105,9 +149,6 @@ public class UserComponent extends JPanel {
         return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
     }
 
-    /**
-     * Le contrôleur s'abonne ici. La vue ne connaît pas le contrôleur.
-     */
     public void addSelectListener(Consumer<User> listener) {
         this.selectListeners.add(listener);
     }
