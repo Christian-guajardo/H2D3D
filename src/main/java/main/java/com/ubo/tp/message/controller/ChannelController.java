@@ -85,7 +85,7 @@ public class ChannelController implements IDatabaseObserver {
             ));
         });
 
-       //this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
+       this.channelListView.setOnDeleteChannel(channel -> mDataManager.deleteChannel(channel));
     }
 
     private Set<User> getAvailableUsers() {
