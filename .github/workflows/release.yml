@@ -30,13 +30,10 @@ jobs:
         run: ./gradlew jar
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "Release ${{ github.ref_name }}"
-          body: |
-            Release automatique générée par GitHub Actions.
-            Tag : ${{ github.ref_name }}
-          files: build/libs/*.jar
+        run: |
+          gh release create ${{ github.ref_name }} \
+            build/libs/*.jar \
+            --title "Release ${{ github.ref_name }}" \
+            --notes "Release automatique générée par GitHub Actions. Tag : ${{ github.ref_name }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
