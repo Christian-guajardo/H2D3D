@@ -42,6 +42,7 @@ public class MessageAppMainController {
         dataManager.addObserver(userController);
         dataManager.addObserver(channelController);
         dataManager.addObserver(messageController);
+        dataManager.addObserver(messageInputController);
 
         userController.setOnUserSelected(() -> channelController.getChannelListView().clearSelection());
         channelController.setOnChannelSelected(() -> userController.getUserListView().clearSelection());

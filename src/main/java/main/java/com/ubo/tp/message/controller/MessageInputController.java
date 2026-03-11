@@ -2,6 +2,7 @@ package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.DataManager;
+import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.ISelectionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.AbstractMessageAppObject;
@@ -13,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MessageInputController implements ISelectionObserver {
+public class MessageInputController implements ISelectionObserver, IDatabaseObserver {
     private final DataManager mDataManager;
     private final Session session;
     private AbstractMessageAppObject selectedObject;
@@ -24,6 +25,7 @@ public class MessageInputController implements ISelectionObserver {
     }
 
     public void sendMessage(String text) {
+        if (selectedObject == null) return;
         mDataManager.sendMessage(new Message(session.getConnectedUser(), selectedObject.getUuid(), text));
     }
 
@@ -69,5 +71,60 @@ public class MessageInputController implements ISelectionObserver {
     @Override
     public void notify(AbstractMessageAppObject selectedObject) {
         this.setSelectedObject(selectedObject);
+    }
+
+    @Override
+    public void notifyMessageAdded(Message addedMessage) {
+
+    }
+
+    @Override
+    public void notifyMessageDeleted(Message deletedMessage) {
+
+    }
+
+    @Override
+    public void notifyMessageModified(Message modifiedMessage) {
+
+    }
+
+    @Override
+    public void notifyUserAdded(User addedUser) {
+
+    }
+
+    @Override
+    public void notifyUserDeleted(User deletedUser) {
+
+    }
+
+    @Override
+    public void notifyUserModified(User modifiedUser) {
+
+    }
+
+    @Override
+    public void notifyChannelAdded(Channel addedChannel) {
+
+    }
+
+    @Override
+    public void notifyChannelDeleted(Channel deletedChannel) {
+        if (selectedObject != null && selectedObject.getUuid().equals(deletedChannel.getUuid())) {
+            selectedObject = null;
+        }
+    }
+
+    @Override
+    public void notifyChannelModified(Channel modifiedChannel) {
+        User me = session.getConnectedUser();
+        // Si on est retiré du canal et qu'on l'avait sélectionné → vider
+        boolean isMember = modifiedChannel.getUsers().contains(me)
+                || modifiedChannel.getCreator().equals(me);
+        if (!isMember && selectedObject != null
+                && selectedObject.getUuid().equals(modifiedChannel.getUuid())) {
+            selectedObject = null;
+            System.out.println("user "+ me.getName() + " removed from channel " + modifiedChannel.getName() + ", deselecting");
+        }
     }
 }
