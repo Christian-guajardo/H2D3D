@@ -1,6 +1,7 @@
 package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.core.DataManager;
+import main.java.com.ubo.tp.message.core.NotificationService;
 import main.java.com.ubo.tp.message.core.selection.Selection;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
@@ -20,29 +21,28 @@ public class MessageAppMainController {
     private final LoginController loginController;
     private final MessageInputController messageInputController;
     private final ProfileController profileController;
+    private final NotificationService notificationService;
 
     public MessageAppMainController(DataManager dataManager, MessageAppMainView mainView) {
         this.dataManager = dataManager;
         this.mainView = mainView;
         this.selection = new Selection();
         this.session = new Session();
+        this.notificationService = new NotificationService();
         this.loginController = new LoginController(dataManager, session);
         this.registerController = new RegisterController(dataManager);
         this.messageController = new MessageController(dataManager, session);
-        this.channelController = new ChannelController(dataManager, selection, session);
-        this.userController = new UserController(dataManager, selection, session);
+        this.channelController = new ChannelController(dataManager, selection, session,notificationService);
+        this.userController = new UserController(dataManager, selection, session,notificationService);
         this.messageInputController = new MessageInputController(dataManager, session);
         this.profileController = new ProfileController(dataManager, session);
         this.connectController = new ConnectController(messageController, messageInputController, channelController, userController);
         this.navigationController = new NavigationController(mainView, dataManager, loginController, registerController, connectController, profileController);
 
-        // FIX: enregistrer userController et channelController comme observateurs
-        // pour recevoir les notifications de la base de données
         dataManager.addObserver(userController);
         dataManager.addObserver(channelController);
         dataManager.addObserver(messageController);
 
-        // Désélection croisée : sélectionner un user déselectionne le channel et vice-versa
         userController.setOnUserSelected(() -> channelController.getChannelListView().clearSelection());
         channelController.setOnChannelSelected(() -> userController.getUserListView().clearSelection());
 
@@ -52,24 +52,11 @@ public class MessageAppMainController {
     }
 
     public void init() {
-        mainView.getLogoutMenuItem().addActionListener(e -> handleLogout());
+        mainView.addLogoutAction(e -> handleLogout());
 
-        // Quand l'utilisateur ferme la fenêtre (croix), on souhaite déconnecter et
-        // réafficher l'état déconnecté avant de quitter.
         mainView.addWindowClosingAction(evt -> {
-            try {
-                handleLogout();
-            } catch (Exception ex) {
-                // ne pas empêcher la fermeture si la déconnexion échoue
-                ex.printStackTrace();
-            }
-            // Afficher l'état déconnecté (sécurisé même si déjà déconnecté)
-            try {
-                mainView.showDisconnectedState();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            // Quitter l'application
+            try { handleLogout(); } catch (Exception ex) { ex.printStackTrace(); }
+            try { mainView.showDisconnectedState(); } catch (Exception ex) { ex.printStackTrace(); }
             System.exit(0);
         });
     }
@@ -81,7 +68,6 @@ public class MessageAppMainController {
             session.disconnect();
             dataManager.sendUser(u);
         } else {
-            // même si aucun utilisateur connecté, s'assurer que la session est fermée
             session.disconnect();
         }
     }

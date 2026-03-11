@@ -97,15 +97,15 @@ public class MessageAppMainView {
     }
 
     // GETTERS pour que le controller accède aux menu items
-    public JMenuItem getRegisterMenuItem() {
+    public JMenuItem getRegister() {
         return registerMenuItem;
     }
 
-    public JMenuItem getLoginMenuItem() {
+    public JMenuItem getLogin() {
         return loginMenuItem;
     }
 
-    public JMenuItem getLogoutMenuItem() {
+    public JMenuItem getLogout() {
         return logoutMenuItem;
     }
 
@@ -202,15 +202,15 @@ public class MessageAppMainView {
         registerMenuItem.addActionListener(listener);
     }
 
-    public void addLoginMenuItem(ActionListener listener) {
+    public void addLogin(ActionListener listener) {
         loginMenuItem.addActionListener(listener);
     }
 
-    public void addChooseExchangeMenuItem(ActionListener listener) {
+    public void addChooseExchange(ActionListener listener) {
         chooseExchangeMenuItem.addActionListener(listener);
     }
 
-    public JMenuItem getEditProfileMenuItem() {
+    public JMenuItem getEditProfile() {
         return editProfileMenuItem;
     }
 
@@ -229,4 +229,9 @@ public class MessageAppMainView {
         mainFrame.revalidate();
         mainFrame.repaint();
     }
+
+    public void addLogoutAction(ActionListener listener) {
+        logoutMenuItem.addActionListener(listener);
+    }
+
 }

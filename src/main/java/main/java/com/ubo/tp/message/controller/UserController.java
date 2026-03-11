@@ -2,6 +2,7 @@ package main.java.com.ubo.tp.message.controller;
 
 import main.java.com.ubo.tp.message.common.Constants;
 import main.java.com.ubo.tp.message.core.DataManager;
+import main.java.com.ubo.tp.message.core.NotificationService;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
 import main.java.com.ubo.tp.message.core.selection.Selection;
 import main.java.com.ubo.tp.message.core.session.Session;
@@ -18,6 +19,7 @@ public class UserController implements IDatabaseObserver {
     private final Selection selection;
     private final UserListView userListView;
     private final Session session;
+    private final NotificationService notificationService;
 
     private Runnable onUserSelected;
 
@@ -29,10 +31,11 @@ public class UserController implements IDatabaseObserver {
         return userListView;
     }
 
-    public UserController(DataManager dataManager, Selection selection, Session session) {
+    public UserController(DataManager dataManager, Selection selection, Session session, NotificationService notificationService) {
         this.dataManager = dataManager;
         this.selection = selection;
         this.session = session;
+        this.notificationService = notificationService;
         this.userListView = new UserListView();
         this.userListView.addUserSelectListener(user -> {
             selection.changeSelection(user);
@@ -61,13 +64,17 @@ public class UserController implements IDatabaseObserver {
     @Override
     public void notifyMessageAdded(Message addedMessage) {
         User me = session.getConnectedUser();
-        if (me == null) return;
-        if (!addedMessage.getRecipient().equals(me.getUuid())) return;
+        if (me == null || !addedMessage.getRecipient().equals(me.getUuid())) return;
+
         User sender = addedMessage.getSender();
         if (sender == null) return;
-        // Si l'expéditeur est actuellement sélectionné, pas de badge
-        if (selection.getmSelected() != null && selection.getmSelected().getUuid().equals(sender.getUuid())) return;
-        userListView.incrementNotificationCount(sender);
+
+        boolean isCurrentSelection = selection.getmSelected() != null && selection.getmSelected().getUuid().equals(sender.getUuid());
+
+        if (!isCurrentSelection) {
+            userListView.incrementNotificationCount(sender);
+            notificationService.notifyDirectMessage(sender.getName(), addedMessage.getText());
+        }
     }
 
     @Override
